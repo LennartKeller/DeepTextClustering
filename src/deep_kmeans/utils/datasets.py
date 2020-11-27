@@ -34,9 +34,7 @@ def make_ag_news_subset(out_path: str, subset_size=0.1, random_state=42):
                                                         test_size=1 - subset_size,
                                                         random_state=random_state)
 
-    df = pd.DataFrame()
-    df['texts'] = test_subset
-    df['labels'] = labels_subset
+    df = pd.DataFrame(data={'texts': test_subset, 'labels': labels_subset})
 
     if out_path:
         df.to_csv(out_path)
