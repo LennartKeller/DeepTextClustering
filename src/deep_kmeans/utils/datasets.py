@@ -22,7 +22,7 @@ def make_ag_news_subset(out_path: str, subset_size=0.1, random_state=42):
     for ds in (train_ds, test_ds):
         for example in tfds.as_numpy(ds):
             text, label = example['description'], example['label']
-            texts.append(text.decode("utf-8"))
+            texts.append(text.decode('utf-8'))
             labels.append(label)
 
     labels = np.array(labels)
