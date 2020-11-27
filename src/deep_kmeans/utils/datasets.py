@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import tensorflow_datasets as tfds
 from itertools import chain
-from sklearn.model_selections import train_test_split
+from sklearn.model_selection import train_test_split
 
 
 def make_ag_news_subset(out_path: str, subset_size=0.1, random_state=42):
@@ -39,3 +39,8 @@ def make_ag_news_subset(out_path: str, subset_size=0.1, random_state=42):
         df.to_csv(out_path)
 
     return df
+
+
+if __name__ == '__main__':
+    make_ag_news_subset('../../../datasets/ag_news_subset10.csv', subset_size=0.1)
+    make_ag_news_subset('../../../datasets/ag_news_subset5.csv', subset_size=0.5)
