@@ -30,6 +30,7 @@ def make_ag_news_subset(out_path: str, subset_size=0.1, random_state=42):
     texts, labels = shuffle(texts, labels, random_state=random_state)
 
     test_subset, _, labels_subset, _ = train_test_split(texts, labels,
+                                                        stratify=labels,
                                                         test_size=1 - subset_size,
                                                         random_state=random_state)
 
