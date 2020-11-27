@@ -43,4 +43,4 @@ def make_ag_news_subset(out_path: str, subset_size=0.1, random_state=42):
 
 if __name__ == '__main__':
     make_ag_news_subset('../../../datasets/ag_news_subset10.csv', subset_size=0.1)
-    make_ag_news_subset('../../../datasets/ag_news_subset5.csv', subset_size=0.5)
+    make_ag_news_subset('../../../datasets/ag_news_subset5.csv', subset_size=0.05)
