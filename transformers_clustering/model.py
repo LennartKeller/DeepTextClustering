@@ -248,12 +248,12 @@ def train(
 
             prediction_history.append(deepcopy(predicted_labels))
 
-            m = {}
+            measurement = {}
             for metric in metrics:
                 value = metric(true_labels, predicted_labels)
-                m[metric.__name__] = value
+                measurement[metric.__name__] = value
                 print(f'{metric.__name__}: {value}')
-            eval_hist.append(m)
+            eval_hist.append(measurement)
 
     train_history = TrainHistory(
         clustering_losses=total_clustering_losses,
