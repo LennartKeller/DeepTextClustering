@@ -194,6 +194,7 @@ class TrainHistory:
     prediction_history: List[np.array]
     eval_hist: List[Dict[str, float]]
 
+
 def train(
         n_epochs,
         model,
@@ -207,7 +208,6 @@ def train(
         metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
         verbose=True
 ):
-
     total_clustering_losses = []
     total_lm_losses = []
     total_combined_losses = []
