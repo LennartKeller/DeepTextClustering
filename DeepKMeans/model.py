@@ -1,15 +1,19 @@
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import List, Dict
 
 import numpy as np
 import torch
+from sklearn.cluster._kmeans import _k_init
 from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
+from sklearn.utils.extmath import row_norms
 from torch import nn
 from tqdm import tqdm
 from transformers.file_utils import ModelOutput
 
 from .helpers import cluster_accuracy
 from .helpers import lp_distance
+from .helpers import mask_tokens
 
 
 @dataclass
@@ -139,12 +143,14 @@ def init_model(
         **kwargs,
 ):
     initial_embeddings = []
-    for batch_texts, _ in data_loader:
+    labels = []
+    for batch_texts, batch_labels in data_loader:
         inputs = tokenizer(batch_texts, return_tensors='pt', padding=True, truncation=True)
         inputs = inputs.to(device)
         outputs = lm_model.base_model(**inputs)
         extracted_embeddings = embedding_extractor(outputs).cpu().detach().numpy()
         initial_embeddings.append(extracted_embeddings)
+        labels.extend(batch_labels.numpy().astype('int'))
 
     initial_embeddings = np.vstack(initial_embeddings)
 
@@ -188,72 +194,72 @@ class TrainHistory:
     prediction_history: List[np.array]
     eval_hist: List[Dict[str, float]]
 
-    def train(
-            n_epochs,
-            model,
-            optimizer,
-            scheduler,
-            annealing_alphas,
-            train_data_loader,
-            eval_data_loader=None,
-            do_eval=True,
-            clustering_loss_weight=0.5,
-            metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
-            verbose=True
-    ):
+def train(
+        n_epochs,
+        model,
+        optimizer,
+        scheduler,
+        annealing_alphas,
+        train_data_loader,
+        eval_data_loader=None,
+        do_eval=True,
+        clustering_loss_weight=0.5,
+        metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
+        verbose=True
+):
 
-        total_clustering_losses = []
-        total_lm_losses = []
-        total_combined_losses = []
-        prediction_history = []
-        eval_hist = []
+    total_clustering_losses = []
+    total_lm_losses = []
+    total_combined_losses = []
+    prediction_history = []
+    eval_hist = []
 
-        assert len(annealing_alphas) >= n_epochs
-        for epoch, alpha in zip(range(n_epochs), annealing_alphas):
-            model.train()
-            train_data_it = tqdm(train_data_loader, desc='Train') if verbose else train_data_loader
-            for batch_texts, _ in train_data_it:
-                lm_outputs, cluster_outputs = model(texts=list(batch_texts), alpha=alpha)
-                combined_loss = lm_outputs.loss + (clustering_loss_weight * cluster_outputs.loss)
+    assert len(annealing_alphas) >= n_epochs
+    for epoch, alpha in zip(range(n_epochs), annealing_alphas):
+        model.train()
+        train_data_it = tqdm(train_data_loader, desc='Train') if verbose else train_data_loader
+        for batch_texts, _ in train_data_it:
+            lm_outputs, cluster_outputs = model(texts=list(batch_texts), alpha=alpha)
+            combined_loss = lm_outputs.loss + (clustering_loss_weight * cluster_outputs.loss)
 
-                optimizer.zero_grad()
-                combined_loss.backward()
-                optimizer.step()
-                scheduler.step()
+            optimizer.zero_grad()
+            combined_loss.backward()
+            optimizer.step()
+            scheduler.step()
 
-                total_clustering_losses.append(cluster_outputs.loss.item())
-                total_lm_losses.append(lm_outputs.loss.item())
-                total_combined_losses.append(combined_loss.item())
+            total_clustering_losses.append(cluster_outputs.loss.item())
+            total_lm_losses.append(lm_outputs.loss.item())
+            total_combined_losses.append(combined_loss.item())
 
-                if verbose:
-                    train_data_it.set_description(
-                        f'Epoch: {epoch} | CombLoss: {combined_loss.item()} |LMLoss: {lm_outputs.loss.item()} | ' \
-                        f' ClusterLoss: {cluster_outputs.loss.item()} | LR: {scheduler.get_last_lr()[0]} | Alpha: {alpha}'
-                    )
+            if verbose:
+                train_data_it.set_description(
+                    f'Epoch: {epoch} | CombLoss: {combined_loss.item()} |LMLoss: {lm_outputs.loss.item()} | ' \
+                    f' ClusterLoss: {cluster_outputs.loss.item()} | LR: {scheduler.get_last_lr()[0]} | Alpha: {alpha}'
+                )
 
-            if do_eval:
-                if eval_data_loader is None:
-                    eval_data_loader = train_data_it if not verbose else train_data_it.iterable
+        if do_eval:
+            if eval_data_loader is None:
+                eval_data_loader = train_data_it if not verbose else train_data_it.iterable
 
-                predicted_labels, true_labels = evaluate(
-                    model=model,
-                    eval_data_loader=eval_data_loader,
-                    verbose=verbose)
+            predicted_labels, true_labels = evaluate(
+                model=model,
+                eval_data_loader=eval_data_loader,
+                verbose=verbose)
 
-                prediction_history.append(deepcopy(predicted_labels))
+            prediction_history.append(deepcopy(predicted_labels))
 
-                m = {}
-                for metric in metrics:
-                    value = metric(true_labels, predicted_labels)
-                    m[metric.__name__] = value
-                    print(f'{metric.__name__}: {value}')
-                eval_hist.append(m)
+            m = {}
+            for metric in metrics:
+                value = metric(true_labels, predicted_labels)
+                m[metric.__name__] = value
+                print(f'{metric.__name__}: {value}')
+            eval_hist.append(m)
 
-        train_history = TrainHistory(
-            clustering_losses=total_clustering_losses,
-            lm_losses=total_lm_losses,
-            combined_losses=total_combined_losses,
-            prediction_history=prediction_history,
-            eval_hist=eval_hist
-        )
-        return train_history
+    train_history = TrainHistory(
+        clustering_losses=total_clustering_losses,
+        lm_losses=total_lm_losses,
+        combined_losses=total_combined_losses,
+        prediction_history=prediction_history,
+        eval_hist=eval_hist
+    )
+    return train_history
