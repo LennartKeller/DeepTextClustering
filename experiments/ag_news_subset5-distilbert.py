@@ -30,6 +30,7 @@ def cfg():
     dataset = "../datasets/ag_news_subset5.csv"
     result_dir = f"../results/ag_news_subset5-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     val_size = 0.1  # not used
+    early_stopping = True
     device = "cuda:0"
     random_state = 42
 
@@ -45,6 +46,7 @@ def run(n_epochs,
         dataset,
         result_dir,
         val_size,
+        early_stopping,
         device,
         random_state
         ):
@@ -102,6 +104,7 @@ def run(n_epochs,
         annealing_alphas=annealing_alphas,
         train_data_loader=data_loader,
         clustering_loss_weight=clustering_loss_weight,
+        early_stopping=early_stopping,
         verbose=True
     )
 
