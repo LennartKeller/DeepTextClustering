@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 from sacred import Experiment
+from sacred.observers import FileStorageObserver
 from torch.utils.data import DataLoader
 from transformers import AutoModel, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
@@ -14,6 +15,7 @@ from transformers_clustering.helpers import TextDataset
 from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states
 
 ex = Experiment('ag_news_subset5-distilbert')
+ex.observers.append(FileStorageObserver('../results/sacred_runs'))
 
 
 @ex.config
@@ -107,4 +109,3 @@ def run(n_epochs,
     os.mkdir(result_dir)
     with open(os.path.join(result_dir, 'train_hist.h'), 'wb') as f:
         pickle.dump(hist, file=f)
-
