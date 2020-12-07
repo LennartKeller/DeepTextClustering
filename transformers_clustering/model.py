@@ -194,6 +194,7 @@ class TrainHistory:
     prediction_history: List[np.array]
     eval_hist: List[Dict[str, float]]
 
+
 def train(
         n_epochs,
         model,
@@ -207,7 +208,6 @@ def train(
         metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
         verbose=True
 ):
-
     total_clustering_losses = []
     total_lm_losses = []
     total_combined_losses = []
@@ -233,7 +233,7 @@ def train(
 
             if verbose:
                 train_data_it.set_description(
-                    f'Epoch: {epoch} | CombLoss: {combined_loss.item()} |LMLoss: {lm_outputs.loss.item()} | ' \
+                    f'Epoch: {epoch} | CombLoss: {combined_loss.item()} |LMLoss: {lm_outputs.loss.item()} | '
                     f' ClusterLoss: {cluster_outputs.loss.item()} | LR: {scheduler.get_last_lr()[0]} | Alpha: {alpha}'
                 )
 
@@ -248,12 +248,12 @@ def train(
 
             prediction_history.append(deepcopy(predicted_labels))
 
-            m = {}
+            measurement = {}
             for metric in metrics:
                 value = metric(true_labels, predicted_labels)
-                m[metric.__name__] = value
+                measurement[metric.__name__] = value
                 print(f'{metric.__name__}: {value}')
-            eval_hist.append(m)
+            eval_hist.append(measurement)
 
     train_history = TrainHistory(
         clustering_losses=total_clustering_losses,
