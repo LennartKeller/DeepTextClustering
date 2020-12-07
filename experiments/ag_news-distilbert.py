@@ -3,18 +3,17 @@ import pickle
 from time import gmtime, strftime
 
 import numpy as np
-import tensorflow_datasets as tfds
+import pandas as pd
 import torch
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
-from sklearn.utils import shuffle
 from torch.utils.data import DataLoader
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from transformers_clustering.helpers import TextDataset
 from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states
-import pandas as pd
+
 ex = Experiment('ag_news-distilbert')
 ex.observers.append(FileStorageObserver('../results/sacred_runs'))
 
