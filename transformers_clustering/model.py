@@ -231,7 +231,7 @@ def train(
         eval_data_loader=None,
         do_eval=True,
         early_stopping=False,
-        early_stopping_tol = None,
+        early_stopping_tol=None,
         clustering_loss_weight=0.5,
         metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
         verbose=True
@@ -308,7 +308,6 @@ def train(
                 eval_hist=eval_hist
             )
             return train_history
-
 
     train_history = TrainHistory(
         clustering_losses=total_clustering_losses,
