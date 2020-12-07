@@ -231,6 +231,7 @@ def train(
         eval_data_loader=None,
         do_eval=True,
         early_stopping=False,
+        early_stopping_tol = None,
         clustering_loss_weight=0.5,
         metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
         verbose=True
@@ -282,17 +283,31 @@ def train(
                 print(f'{metric.__name__}: {value}')
             eval_hist.append(measurement)
 
+        do_early_stopping = False
         if len(prediction_history) >= 2 and do_eval and early_stopping:
-            if (prediction_history[-1] == prediction_history[-2]).all():
-                print("No cluster assignments changed over the course of one epoch. Early stopping!")
-                train_history = TrainHistory(
-                    clustering_losses=total_clustering_losses,
-                    lm_losses=total_lm_losses,
-                    combined_losses=total_combined_losses,
-                    prediction_history=prediction_history,
-                    eval_hist=eval_hist
-                )
-                return train_history
+            if early_stopping_tol is None:
+                if (prediction_history[-1] == prediction_history[-2]).all():
+                    print("No cluster assignments changed over the course of one epoch. Early stopping!")
+                    do_early_stopping = True
+            else:
+                n_changed = np.zeros_like(prediction_history[-1])
+                n_changed[prediction_history[-1] == prediction_history[-2]] = 1
+                rel_changes = np.sum(n_changed) / n_changed.shape[0]
+                if rel_changes <= early_stopping_tol:
+                    print(f"Only {rel_changes}%  of cluster assignments changed over the course of one epoch."
+                          f"Early stopping!")
+                    do_early_stopping = True
+
+         if do_early_stopping:
+            train_history = TrainHistory(
+                clustering_losses=total_clustering_losses,
+                lm_losses=total_lm_losses,
+                combined_losses=total_combined_losses,
+                prediction_history=prediction_history,
+                eval_hist=eval_hist
+            )
+            return train_history
+
 
     train_history = TrainHistory(
         clustering_losses=total_clustering_losses,
