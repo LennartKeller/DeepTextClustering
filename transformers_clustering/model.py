@@ -183,7 +183,7 @@ def init_model(
         initial_embeddings,
         n_clusters=np.unique(labels).shape[0],
         x_squared_norms=row_norms(initial_embeddings, squared=True),
-        random_state=np.random.RandomState(42)
+        random_state=random_state
     )
 
     model = ClusterLM(
