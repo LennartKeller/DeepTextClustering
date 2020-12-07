@@ -20,7 +20,7 @@ ex.observers.append(FileStorageObserver('../results/sacred_runs'))
 
 @ex.config
 def cfg():
-    n_epochs = 5
+    n_epochs = 20
     lr = 2e-5
     batch_size = 16
     base_model = "distilbert-base-uncased"
