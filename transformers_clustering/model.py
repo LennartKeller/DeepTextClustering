@@ -282,6 +282,18 @@ def train(
                 print(f'{metric.__name__}: {value}')
             eval_hist.append(measurement)
 
+        if len(prediction_history) >= 2 and early_stopping:
+            if (prediction_history[-1] == prediction_history[-2]).all():
+                print("No cluster assignments changed over the course of one epoch. Early stopping!")
+                train_history = TrainHistory(
+                    clustering_losses=total_clustering_losses,
+                    lm_losses=total_lm_losses,
+                    combined_losses=total_combined_losses,
+                    prediction_history=prediction_history,
+                    eval_hist=eval_hist
+                )
+                return train_history
+
     train_history = TrainHistory(
         clustering_losses=total_clustering_losses,
         lm_losses=total_lm_losses,
@@ -289,10 +301,5 @@ def train(
         prediction_history=prediction_history,
         eval_hist=eval_hist
     )
-
-    if len(prediction_history) >= 2 and early_stopping:
-        if (prediction_history[-1] == prediction_history[-2]).all():
-            print("No cluster assignments changed over the course of one epoch. Early stopping!")
-            return train_history
 
     return train_history
