@@ -31,6 +31,7 @@ def cfg():
     result_dir = f"../results/ag_news_subset5-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     val_size = 0.1  # not used
     early_stopping = True
+    early_stopping_tol = 0.01
     device = "cuda:0"
     random_state = 42
 
@@ -47,6 +48,7 @@ def run(n_epochs,
         result_dir,
         val_size,
         early_stopping,
+        early_stopping_tol,
         device,
         random_state
         ):
@@ -105,6 +107,7 @@ def run(n_epochs,
         train_data_loader=data_loader,
         clustering_loss_weight=clustering_loss_weight,
         early_stopping=early_stopping,
+        early_stopping_tol=early_stopping_tol,
         verbose=True
     )
 
