@@ -79,7 +79,7 @@ def run(n_epochs,
     # init optimizer & scheduler
     opt = torch.optim.RMSprop(
         params=model.parameters(),
-        lr=2e-5,  # 2e-5, 5e-7,
+        lr=lr,  # 2e-5, 5e-7,
         eps=1e-8
     )
 
@@ -99,7 +99,7 @@ def run(n_epochs,
         scheduler=scheduler,
         annealing_alphas=annealing_alphas,
         train_data_loader=data_loader,
-        clustering_loss_weight=1.0,
+        clustering_loss_weight=clustering_loss_weight,
         verbose=True
     )
 
