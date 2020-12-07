@@ -230,6 +230,7 @@ def train(
         train_data_loader,
         eval_data_loader=None,
         do_eval=True,
+        early_stopping=False,
         clustering_loss_weight=0.5,
         metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
         verbose=True
@@ -288,4 +289,9 @@ def train(
         prediction_history=prediction_history,
         eval_hist=eval_hist
     )
+
+    if early_stopping:
+        if (prediction_history[-1] == prediction_history[-2]).all():
+            print("No cluster assignments changed over the course of on epoch. Early stopping!")
+
     return train_history
