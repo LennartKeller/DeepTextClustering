@@ -290,7 +290,7 @@ def train(
         eval_hist=eval_hist
     )
 
-    if early_stopping:
+    if early_stopping and len(prediction_history) >= 2:
         if (prediction_history[-1] == prediction_history[-2]).all():
             print("No cluster assignments changed over the course of one epoch. Early stopping!")
             return train_history
