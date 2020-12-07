@@ -169,7 +169,7 @@ def init_model(
     initial_embeddings = []
     labels = []
     for batch_texts, batch_labels in data_loader:
-        inputs = tokenizer(batch_texts, return_tensors='pt', padding=True, truncation=True)
+        inputs = tokenizer(list(batch_texts), return_tensors='pt', padding=True, truncation=True)
         inputs = inputs.to(device)
         outputs = lm_model.base_model(**inputs)
         extracted_embeddings = embedding_extractor(outputs).cpu().detach().numpy()
