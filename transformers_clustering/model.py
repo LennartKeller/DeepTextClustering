@@ -291,14 +291,15 @@ def train(
                     do_early_stopping = True
             else:
                 n_changed = np.zeros_like(prediction_history[-1])
-                n_changed[prediction_history[-1] == prediction_history[-2]] = 1
+                n_changed[prediction_history[-1] != prediction_history[-2]] = 1
                 rel_changes = np.sum(n_changed) / n_changed.shape[0]
                 if rel_changes <= early_stopping_tol:
-                    print(f"Only {rel_changes}%  of cluster assignments changed over the course of one epoch."
-                          f"Early stopping!")
+                    print(
+                        f"{rel_changes} % of Cluster assignments changed over the course of one epoch. Early stopping!"
+                    )
                     do_early_stopping = True
 
-         if do_early_stopping:
+        if do_early_stopping:
             train_history = TrainHistory(
                 clustering_losses=total_clustering_losses,
                 lm_losses=total_lm_losses,
