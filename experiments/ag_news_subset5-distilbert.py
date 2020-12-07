@@ -31,7 +31,7 @@ def cfg():
     result_dir = f"../results/ag_news_subset5-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     val_size = 0.1  # not used
     early_stopping = True
-    early_stopping_tol = 0.01
+    early_stopping_tol = 0.5
     device = "cuda:0"
     random_state = 42
 
