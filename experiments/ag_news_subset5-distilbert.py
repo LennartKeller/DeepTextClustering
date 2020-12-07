@@ -24,7 +24,7 @@ def cfg():
     lr = 2e-5
     batch_size = 16
     base_model = "distilbert-base-uncased"
-    clustering_loss_weight = 0.1
+    clustering_loss_weight = 0.5
     embedding_extractor = concat_cls_n_hidden_states
     annealing_alphas = np.arange(1, n_epochs + 1)
     dataset = "../datasets/ag_news_subset5.csv"
