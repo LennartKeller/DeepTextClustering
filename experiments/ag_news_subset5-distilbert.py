@@ -18,7 +18,7 @@ ex = Experiment('ag_news_subset5-distilbert')
 
 @ex.config
 def cfg():
-    n_epochs = 9
+    n_epochs = 5
     lr = 2e-5
     batch_size = 16
     base_model = "distilbert-base-uncased"
