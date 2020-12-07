@@ -24,7 +24,7 @@ def cfg():
     lr = 2e-5
     batch_size = 16
     base_model = "distilbert-base-uncased"
-    clustering_loss_weight = 0.5
+    clustering_loss_weight = 1.0
     embedding_extractor = concat_cls_n_hidden_states
     annealing_alphas = np.arange(1, n_epochs + 1)
     dataset = "../datasets/ag_news_subset5.csv"
@@ -108,7 +108,11 @@ def run(n_epochs,
         verbose=True
     )
 
-    # save results
+    # save results & model
     os.makedirs(result_dir)
     with open(os.path.join(result_dir, 'train_hist.h'), 'wb') as f:
         pickle.dump(hist, file=f)
+
+    torch.save(model, os.path.join(result_dir, 'model.bin'))
+
+
