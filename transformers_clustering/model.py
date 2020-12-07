@@ -171,7 +171,8 @@ def init_model(
     for batch_texts, batch_labels in data_loader:
         inputs = tokenizer(list(batch_texts), return_tensors='pt', padding=True, truncation=True)
         inputs = inputs.to(device)
-        outputs = lm_model.base_model(**inputs)
+        with torch.no_grad():
+            outputs = lm_model.base_model(**inputs)
         extracted_embeddings = embedding_extractor(outputs).cpu().detach().numpy()
         initial_embeddings.append(extracted_embeddings)
         labels.extend(batch_labels.numpy().astype('int'))
@@ -204,7 +205,8 @@ def evaluate(model, eval_data_loader, verbose=True):
     eval_data_it = tqdm(eval_data_loader, desc='Eval') if verbose else eval_data_loader
     for batch_texts, batch_labels in eval_data_it:
         true_labels.extend(batch_labels.numpy().astype('int'))
-        _, cluster_outputs = model(texts=list(batch_texts))
+        with torch.no_grad():
+            _, cluster_outputs = model(texts=list(batch_texts))
         predicted_labels.extend(cluster_outputs.predicted_labels.numpy().astype('int'))
 
     return np.array(predicted_labels), np.array(true_labels)
