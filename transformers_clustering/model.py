@@ -41,6 +41,30 @@ def concat_mean_n_hidden_states(model_output: ModelOutput, n=3):
     return torch.cat([t.mean(dim=1) for t in n_hidden_states], 1).float()
 
 
+class LearnableWeightedAverage(nn.Module):
+
+    def __init__(self, n=3, device='cuda:0'):
+        super(LearnableWeightedAverage, self).__init__()
+        self.n = n
+        self.device = device
+        self.register_parameter(
+            'weights',
+            nn.Parameter(torch.ones(self.n).float().unsqueeze(1), requires_grad=True)
+        )
+
+        self.to(self.device)
+
+    def __forward__(self, model_output: ModelOutput):
+        n_hidden_states = model_output.hidden_states[-self.n:]
+        # stacked_cls = torch.cat([t.mean(dim=1) for t in n_hidden_states], 0).reshape(-1, self.n, 768)
+        stacked_cls = torch.cat([t[:, 0, :] for t in n_hidden_states], 0).reshape(-1, self.n, 768)
+        # return (stacked_cls * self.weights).mean(dim=1)
+        return (stacked_cls * self.weights).reshape(stacked_cls.size()[0], -1)
+
+    def __call__(self, *args, **kwargs):
+        return self.__forward__(*args, **kwargs)
+
+
 class ClusterLM(nn.Module):
 
     def __init__(self,
