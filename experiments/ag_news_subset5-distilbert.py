@@ -8,7 +8,7 @@ import torch
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
 from torch.utils.data import DataLoader
-from transformers import AutoModel, AutoTokenizer
+from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from transformers_clustering.helpers import TextDataset
@@ -63,7 +63,7 @@ def run(n_epochs,
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False)
 
     # init lm model & tokenizer
-    lm_model = AutoModel.from_pretrained(base_model, return_dict=True, output_hidden_states=True)
+    lm_model = AutoModelForMaskedLM.from_pretrained(base_model, return_dict=True, output_hidden_states=True)
     tokenizer = AutoTokenizer.from_pretrained(base_model, return_dict=True, output_hidden_states=True)
 
     lm_model.to(device)
