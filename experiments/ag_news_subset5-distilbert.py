@@ -106,6 +106,6 @@ def run(n_epochs,
     )
 
     # save results
-    os.mkdir(result_dir)
+    os.makedirs(result_dir)
     with open(os.path.join(result_dir, 'train_hist.h'), 'wb') as f:
         pickle.dump(hist, file=f)
