@@ -23,7 +23,7 @@ ex.observers.append(FileStorageObserver('../results/sacred_runs'))
 def cfg():
     n_epochs = 20
     lr = 2e-5
-    batch_size = 16
+    batch_size = 8
     base_model = "distilbert-base-uncased"
     clustering_loss_weight = 1.0
     embedding_extractor = concat_cls_n_hidden_states
