@@ -282,7 +282,7 @@ def train(
                 print(f'{metric.__name__}: {value}')
             eval_hist.append(measurement)
 
-        if len(prediction_history) >= 2 and early_stopping:
+        if len(prediction_history) >= 2 and do_eval and early_stopping:
             if (prediction_history[-1] == prediction_history[-2]).all():
                 print("No cluster assignments changed over the course of one epoch. Early stopping!")
                 train_history = TrainHistory(
