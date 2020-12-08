@@ -15,7 +15,7 @@ from transformers_clustering.helpers import TextDataset
 from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states
 
 ex = Experiment('20newsgroups-distilbert')
-ex.observers.append(FileStorageObserver('../results/sacred_runs'))
+ex.observers.append(FileStorageObserver('../results/sacred_runs/20newsgroups-distilbert/'))
 
 mongo_enabled = os.environ.get('MONGO_SACRED_ENABLED')
 mongo_user = os.environ.get('MONGO_SACRED_USER')
