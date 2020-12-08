@@ -28,7 +28,7 @@ if mongo_enabled == 'true':
     assert mongo_pass, 'Setting $MONGO_PASS is required'
     assert mongo_host, 'Setting $MONGO_HOST is required'
 
-    mongo_url = 'mongodb://{0}:{1}@{2}:{3}}/' \
+    mongo_url = 'mongodb://{0}:{1}@{2}:{3}/' \
                 'sacred?authMechanism=SCRAM-SHA-1'.format(mongo_user, mongo_pass, mongo_host, mongo_port)
 
     ex.observers.append(MongoObserver(url=mongo_url, db_name='sacred'))
