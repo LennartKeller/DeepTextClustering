@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 from sacred import Experiment
-from sacred.observers import FileStorageObserver
+from sacred.observers import FileStorageObserver, MongoObserver
 from torch.utils.data import DataLoader
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
@@ -16,6 +16,22 @@ from transformers_clustering.model import init_model, train, concat_cls_n_hidden
 
 ex = Experiment('ag_news-distilbert')
 ex.observers.append(FileStorageObserver('../results/sacred_runs'))
+
+mongo_enabled = os.environ.get('MONGO_SACRED_ENABLED')
+mongo_user = os.environ.get('MONGO_SACRED_USER')
+mongo_pass = os.environ.get('MONGO_SACRED_PASS')
+mongo_host = os.environ.get('MONGO_SACRED_HOST')
+mongo_port = os.environ.get('MONGO_SACRED_PORT', '27017')
+
+if mongo_enabled == 'true':
+    assert mongo_user, 'Setting $MONGO_USER is required'
+    assert mongo_pass, 'Setting $MONGO_PASS is required'
+    assert mongo_host, 'Setting $MONGO_HOST is required'
+
+    mongo_url = 'mongodb://{0}:{1}@{2}:{3}}/' \
+                'sacred?authMechanism=SCRAM-SHA-1'.format(mongo_user, mongo_pass, mongo_host, mongo_port)
+
+    ex.observers.append(MongoObserver(url=mongo_url, db_name='sacred'))
 
 
 @ex.config
