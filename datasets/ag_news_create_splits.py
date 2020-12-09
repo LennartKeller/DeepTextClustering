@@ -5,7 +5,8 @@ from sklearn.model_selection import train_test_split
 
 def create_split_idx(df, val_size=0.1):
     idx = np.arange(df.shape[0])
-    train_idx, val_idx = train_test_split(idx, test_size=0.1, random_state=42)
+    train_idx, val_idx = train_test_split(idx, test_size=val_size, random_state=42)
+    assert not set(train_idx).intersection(set(val_idx))
     return train_idx, val_idx
 
 

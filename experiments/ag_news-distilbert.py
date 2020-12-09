@@ -43,9 +43,9 @@ def cfg():
     clustering_loss_weight = 1.0
     embedding_extractor = concat_cls_n_hidden_states
     annealing_alphas = np.arange(1, n_epochs + 1)
-    dataset = "../datasets/ag_news.csv"
+    dataset = "../datasets/ags_news/ag_news.csv"
+    train_idx_file = "../datasets/ag_news/splits/train"
     result_dir = f"../results/ag_news-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
-    val_size = 0.1  # not used
     early_stopping = True
     early_stopping_tol = 0.01
     device = "cuda:0"
@@ -61,8 +61,8 @@ def run(n_epochs,
         embedding_extractor,
         annealing_alphas,
         dataset,
+        train_idx_file,
         result_dir,
-        val_size,
         early_stopping,
         early_stopping_tol,
         device,
