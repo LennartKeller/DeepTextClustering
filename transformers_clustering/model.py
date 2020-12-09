@@ -38,7 +38,7 @@ def concat_cls_n_hidden_states(model_output: ModelOutput, n=3):
 
 def concat_mean_n_hidden_states(model_output: ModelOutput, n=3):
     n_hidden_states = model_output.hidden_states[-n:]
-    return torch.cat([t.mean(dim=1) for t in n_hidden_states], 1).float()
+    return torch.cat([t[:, 1:, :].mean(dim=1) for t in n_hidden_states], 1).float()
 
 
 class LearnableWeightedAverage(nn.Module):
