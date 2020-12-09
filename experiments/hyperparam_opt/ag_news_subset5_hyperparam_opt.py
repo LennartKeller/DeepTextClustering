@@ -194,11 +194,12 @@ def run(n_epochs,
         run_results['ari'] = ari
         run_results['nmi'] = nmi
 
-        results.append(run_results)
-        result_df = pd.DataFrame.from_records(results)
-        result_df.to_csv(os.path.join(result_dir), 'opt_results_ag_news_subset5.csv')
-
         # save train hist
         os.makedirs(result_dir)
+
+        results.append(run_results)
+        result_df = pd.DataFrame.from_records(results)
+        result_df.to_csv(os.path.join(result_dir, 'opt_results_ag_news_subset5.csv'), index=False)
+
         with open(os.path.join(result_dir, f'train_hist_run{run_idx}.h'), 'wb') as f:
             pickle.dump(hist, file=f)
