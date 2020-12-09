@@ -144,3 +144,12 @@ ipython_config.py
 # Remove previous ipynb_checkpoints
 #   git rm -r .ipynb_checkpoints/
 
+.idea/.gitignore
+.idea/DeepTextClustering.iml
+.idea/aws.xml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+datasets/20newsgroups/20newsgroups_train.csv
+datasets/20newsgroups/20newsgroups_val.csv
