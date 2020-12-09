@@ -196,7 +196,7 @@ def run(n_epochs,
         run_results['nmi'] = nmi
 
         # save train hist
-        os.makedirs(result_dir)
+        os.makedirs(result_dir, exist_ok=True)
 
         results.append(run_results)
         result_df = pd.DataFrame.from_records(results)
