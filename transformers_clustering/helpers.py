@@ -100,8 +100,20 @@ def mask_tokens(inputs: torch.Tensor, tokenizer) -> Tuple[torch.Tensor, torch.Te
     return inputs, labels
 
 
-def mean_sparsity(X):
+def mean_sparsity(X, axis=1):
     """
-    Computes the mean of the row-wise sparsity of the input feature-matrix X
+    Computes the mean of the sparsity of the input feature-matrix X along a given axis
     """
-    return np.mean(np.count_nonzero(X, axis=1) / X.shape[1])
+    return np.mean(np.count_nonzero(X, axis=axis) / X.shape[axis])
+
+
+def orig_annealing_alphas(n_epochs, constant_value=1):
+    """
+    Original annealing alpha scheme from Moradi et. al
+    """
+    alphas = np.zeros(n_epochs, dtype=float)
+    alphas[0] = 0.1
+    for i in range(1, n_epochs):
+        alphas[i] = (2 ** (1 / (np.log(i + 1)) ** 2)) * alphas[i - 1]
+    annealing_alphas = alphas / constant_value
+    return annealing_alphas
