@@ -127,6 +127,7 @@ def run(n_epochs,
     results = []
     param_grid = ParameterGrid(hyperparam_grid)
     for run_idx, params in enumerate(param_grid):
+        print(f'Run: {run_idx+1}/{len(list(param_grid))}')
         print("Running with params:")
         pprint(params)
 
