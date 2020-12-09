@@ -107,7 +107,7 @@ def run(n_epochs,
     with open(val_idx_file, 'r') as f:
         val_idx = np.array(list(map(int, f.readlines())))
 
-    all_idx = np.appen(train_idx, val_idx)
+    all_idx = np.append(train_idx, val_idx)
 
     df_train = df.iloc[all_idx]
     train_texts = df_train['texts'].to_numpy()
