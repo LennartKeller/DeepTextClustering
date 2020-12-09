@@ -25,7 +25,7 @@ from transformers_clustering.model import (
     concat_mean_n_hidden_states
 )
 
-ex = Experiment('ag_news-distilbert')
+ex = Experiment('ag_news_subset5_opt-distilbert')
 ex.observers.append(FileStorageObserver('../results/sacred_runs'))
 
 mongo_enabled = os.environ.get('MONGO_SACRED_ENABLED')
@@ -70,7 +70,7 @@ def cfg():
     embedding_extractor = concat_cls_n_hidden_states
     annealing_alphas = np.arange(1, n_epochs + 1)
     dataset = "../datasets/ag_news.csv"
-    result_dir = f"../results/ag_news-distilbert/opt/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
+    result_dir = f"../results/ag_news_subset5-distilbert/opt/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     train_idx_file = "../datasets/ag_news_subset5/splits/train"
     val_idx_file = "../datasets/ag_news_subset5/splits/val"
     early_stopping = True
