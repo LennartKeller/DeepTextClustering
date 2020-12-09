@@ -14,8 +14,8 @@ from transformers import get_linear_schedule_with_warmup
 from transformers_clustering.helpers import TextDataset
 from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states
 
-ex = Experiment('20newsgroups-distilbert')
-ex.observers.append(FileStorageObserver('../results/sacred_runs/20newsgroups-distilbert/'))
+ex = Experiment('20newsgroups-bert-base')
+ex.observers.append(FileStorageObserver('../results/sacred_runs/20newsgroups-bert-base/'))
 
 mongo_enabled = os.environ.get('MONGO_SACRED_ENABLED')
 mongo_user = os.environ.get('MONGO_SACRED_USER')
@@ -40,13 +40,13 @@ def cfg():
     lr = 2e-7
     batch_size = 8
     val_batch_size = 16
-    base_model = "distilbert-base-uncased"
+    base_model = "bert-base-uncased"
     clustering_loss_weight = 1.0
     embedding_extractor = concat_cls_n_hidden_states
     annealing_alphas = np.arange(1, n_epochs + 1)
     dataset = "../datasets/20newsgroups/20newsgroups_train.csv"
     val_dataset = "../datasets/20newsgroups/20newsgroups_val.csv"
-    result_dir = f"../results/20newsgroups-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
+    result_dir = f"../results/20newsgroups-bert-base/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     early_stopping = True
     early_stopping_tol = 0.01
     device = "cuda:0"
