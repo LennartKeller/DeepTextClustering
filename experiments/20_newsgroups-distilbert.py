@@ -70,7 +70,6 @@ def run(n_epochs,
         device,
         random_state
         ):
-
     # Set random states
     np.random.seed(random_state)
     torch.manual_seed(random_state)
@@ -84,7 +83,6 @@ def run(n_epochs,
 
     train_data = TextDataset(train_texts, train_labels)
     train_data_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
-
 
     val_df = pd.read_csv(val_dataset)
 

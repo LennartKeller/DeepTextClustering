@@ -79,14 +79,10 @@ def run(n_epochs,
     texts = df['texts'].to_numpy()
     labels = df['labels'].to_numpy()
 
-
-
     data = TextDataset(texts, labels)
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False)
 
-
     # insert code here!
-
 
     # init lm model & tokenizer
     lm_model = AutoModelForMaskedLM.from_pretrained(base_model, return_dict=True, output_hidden_states=True)

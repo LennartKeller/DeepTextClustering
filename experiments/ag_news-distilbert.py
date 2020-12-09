@@ -76,6 +76,11 @@ def run(n_epochs,
     # load data
     df = pd.read_csv(dataset)
 
+    with open(train_idx_file, 'r') as f:
+        train_idx = np.array(list(map(int, f.readlines())))
+
+    df = df.iloc[train_idx].copy()
+
     texts = df['texts'].to_numpy()
     labels = df['labels'].to_numpy()
 
