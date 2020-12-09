@@ -59,9 +59,9 @@ def cfg():
             np.ones(n_epochs) / 10.0
         ],
         'embedding_extractor':
-            [partial(func=concat_cls_n_hidden_states, n=i) for i in range(1, 7)]
+            [partial(concat_cls_n_hidden_states, n=i) for i in range(1, 7)]
             +
-            [partial(func=concat_mean_n_hidden_states, n=i) for i in range(1, 7)],
+            [partial(concat_mean_n_hidden_states, n=i) for i in range(1, 7)],
 
     }
     batch_size = 16
