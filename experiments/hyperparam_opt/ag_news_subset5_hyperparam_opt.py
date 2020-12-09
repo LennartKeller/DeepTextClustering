@@ -49,7 +49,6 @@ if mongo_enabled == 'true':
 def cfg():
     n_epochs = 10
     hyperparam_grid = {
-        'lr': [2e-5, 1e-5, 3e-5, 4e-5, 5e-5, 6e-5],
         'clustering_loss_weight': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
         'annealing_alphas': [
             np.arange(1, n_epochs + 1).astype('float'),
@@ -64,6 +63,8 @@ def cfg():
             [partial(concat_mean_n_hidden_states, n=i) for i in range(1, 7)],
 
     }
+    lr = 2e-5
+    # 'lr': [2e-5, 1e-5, 3e-5, 4e-5, 5e-5, 6e-5] => tune in second step
     batch_size = 16
     val_batch_size = 32
     base_model = "distilbert-base-uncased"
@@ -82,6 +83,7 @@ def cfg():
 @ex.automain
 def run(n_epochs,
         hyperparam_grid,
+        lr,
         batch_size,
         val_batch_size,
         base_model,
@@ -150,7 +152,7 @@ def run(n_epochs,
         # init optimizer & scheduler
         opt = torch.optim.RMSprop(
             params=model.parameters(),
-            lr=params['lr'],  # hier weitermachen
+            lr=lr,  # hier weitermachen
             eps=1e-8
         )
 
