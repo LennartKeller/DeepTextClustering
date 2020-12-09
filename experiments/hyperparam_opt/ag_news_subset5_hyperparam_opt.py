@@ -72,7 +72,7 @@ def cfg():
     dataset = "../datasets/ag_news.csv"
     result_dir = f"../results/ag_news_subset5-distilbert/opt/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     train_idx_file = "../datasets/ag_news_subset5/splits/train"
-    val_idx_file = "../datasets/ag_news_subset5/splits/val"
+    val_idx_file = "../datasets/ag_news_subset5/splits/validation"
     early_stopping = True
     early_stopping_tol = 0.01
     device = "cuda:0"
