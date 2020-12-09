@@ -28,7 +28,7 @@ def cls_embedding_extractor(model_output: ModelOutput):
 
 
 def meanpooler_embedding_extractor(model_ouput: ModelOutput):
-    return model_ouput.last_hidden_state.mean(dim=1).float()
+    return model_ouput.last_hidden_state[:, 1:, :].mean(dim=1).float()
 
 
 def concat_cls_n_hidden_states(model_output: ModelOutput, n=3):
