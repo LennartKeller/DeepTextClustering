@@ -51,6 +51,7 @@ class LearnableWeightedAverage(nn.Module):
             'weights',
             nn.Parameter(torch.ones(self.n).float().unsqueeze(1), requires_grad=True)
         )
+        self.sigmoid = nn.Sigmoid()
 
         self.to(self.device)
 
@@ -59,6 +60,7 @@ class LearnableWeightedAverage(nn.Module):
         # stacked_cls = torch.cat([t.mean(dim=1) for t in n_hidden_states], 0).reshape(-1, self.n, 768)
         stacked_cls = torch.cat([t[:, 0, :] for t in n_hidden_states], 0).reshape(-1, self.n, 768)
         # return (stacked_cls * self.weights).mean(dim=1)
+        self.weights = self.sigmoid(self.weights)
         return (stacked_cls * self.weights).reshape(stacked_cls.size()[0], -1)
 
     def __call__(self, *args, **kwargs):
