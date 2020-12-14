@@ -57,11 +57,8 @@ class LearnableWeightedAverage(nn.Module):
 
     def __forward__(self, model_output: ModelOutput):
         n_hidden_states = model_output.hidden_states[-self.n:]
-        # stacked_cls = torch.cat([t.mean(dim=1) for t in n_hidden_states], 0).reshape(-1, self.n, 768)
         stacked_cls = torch.cat([t[:, 0, :] for t in n_hidden_states], 0).reshape(-1, self.n, 768)
-        # return (stacked_cls * self.weights).mean(dim=1)
-        self.weights = self.sigmoid(self.weights)
-        return (stacked_cls * self.weights).reshape(stacked_cls.size()[0], -1)
+        return (stacked_cls * self.sigmoid(self.weights)).reshape(stacked_cls.size()[0], -1)
 
     def __call__(self, *args, **kwargs):
         return self.__forward__(*args, **kwargs)
