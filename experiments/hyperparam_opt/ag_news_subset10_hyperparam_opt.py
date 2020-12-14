@@ -54,7 +54,7 @@ def cfg():
         'annealing_alphas': [np.ones(n_epochs) * 1000.0],
         'embedding_extractor':
             [partial(concat_cls_n_hidden_states, n=2)],
-        'lr': [2e-4, 2e-5, 2e-6, 2e-7, 2e-8, 2e-9, 2e-10, 1e-10, 1e-4, 1e-6, 1e-8]
+        'lr': sorted([2e-4, 1e-4, 3e-5, 5e-5, 2e-5, 1e-5, 2e-6, 5e-6, 7e-5, 9e-5, 9e-6, 9e-5])
     }
     batch_size = 16
     val_batch_size = 32
