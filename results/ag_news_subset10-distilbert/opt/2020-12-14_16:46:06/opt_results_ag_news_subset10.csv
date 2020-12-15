@@ -1,0 +1,13 @@
+param_annealing_alphas,param_clustering_loss_weight,param_embedding_extractor,param_lr,best_matching,accuracy,ari,nmi
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",2e-06,"{0: 3, 1: 0, 2: 2, 3: 1}",0.6692789968652038,0.44172451310670174,0.4835522692137039
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",5e-06,"{0: 2, 1: 3, 2: 1, 3: 0}",0.8322884012539185,0.6124232783880008,0.5848783276448898
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",9e-06,"{0: 1, 1: 2, 2: 0, 3: 3}",0.7539184952978056,0.5120059608835876,0.5391778667113449
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",1e-05,"{0: 1, 1: 3, 2: 0, 3: 2}",0.6810344827586207,0.4363585878803854,0.4512607799256963
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",2e-05,"{0: 1, 1: 0, 2: 2, 3: 3}",0.8197492163009404,0.5840999915815104,0.5450963072877258
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",3e-05,"{0: 1, 1: 0, 2: 3, 3: 2}",0.6285266457680251,0.41566504070294713,0.4637187920772291
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",5e-05,"{0: 3, 1: 0, 2: 1, 3: 2}",0.75,0.47852799120917283,0.49464487134769025
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",7e-05,"{0: 1, 1: 3, 2: 0, 3: 2}",0.6896551724137931,0.4454332001171692,0.4732961359269164
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",9e-05,"{0: 1, 1: 0, 2: 2, 3: 3}",0.8299373040752351,0.6105083070029549,0.5935710796878487
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",9e-05,"{0: 3, 1: 0, 2: 1, 3: 2}",0.7860501567398119,0.5297013920522884,0.5185180836110145
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",0.0001,"{0: 2, 1: 1, 2: 3, 3: 0}",0.6857366771159875,0.44800501468323045,0.48229898708883107
+[1000. 1000. 1000. 1000. 1000.],1.0,"functools.partial(<function concat_cls_n_hidden_states at 0x7f9ec1e89f70>, n=2)",0.0002,"{0: 1, 1: 0, 2: 2, 3: 3}",0.7829153605015674,0.5146850364596488,0.498948932313727
