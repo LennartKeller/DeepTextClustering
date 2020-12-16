@@ -152,7 +152,7 @@ def run(n_epochs,
     )
 
     # do eval
-    run_results = {**{f'param_{key}': value for key, value in params.items()}}
+    run_results = {}
 
     predicted_labels, true_labels = evaluate(
         model=model,
