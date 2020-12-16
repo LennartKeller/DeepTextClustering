@@ -8,12 +8,14 @@ import pandas as pd
 import torch
 from sacred import Experiment
 from sacred.observers import FileStorageObserver, MongoObserver
+from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
 from torch.utils.data import DataLoader
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from transformers_clustering.helpers import TextDataset
-from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states
+from transformers_clustering.helpers import cluster_accuracy
+from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states, evaluate
 
 ex = Experiment('ag_news_subset5-bert-base')
 ex.observers.append(FileStorageObserver('../results/ag_news_subset5-bert-base/sacred_runs'))
@@ -38,7 +40,7 @@ if mongo_enabled == 'true':
 @ex.config
 def cfg():
     n_epochs = 10
-    lr = 2e-6
+    lr = 9e-05
     train_batch_size = 8
     val_batch_size = 16
     base_model = "bert-base-uncased"
@@ -148,6 +150,30 @@ def run(n_epochs,
         early_stopping_tol=early_stopping_tol,
         verbose=True
     )
+
+    # do eval
+    run_results = {**{f'param_{key}': value for key, value in params.items()}}
+
+    predicted_labels, true_labels = evaluate(
+        model=model,
+        eval_data_loader=val_data_loader,
+        verbose=True
+    )
+
+    best_matching, accuracy = cluster_accuracy(true_labels, predicted_labels)
+    ari = adjusted_rand_score(true_labels, predicted_labels)
+    nmi = normalized_mutual_info_score(true_labels, predicted_labels)
+
+    run_results['best_matching'] = best_matching
+    run_results['accuracy'] = accuracy
+    run_results['ari'] = ari
+    run_results['nmi'] = nmi
+
+    # save train hist
+    os.makedirs(result_dir, exist_ok=True)
+
+    result_df = pd.DataFrame.from_records([run_results])
+    result_df.to_csv(os.path.join(result_dir, 'opt_results_ag_news_subset10.csv'), index=False)
 
     # save results & model
     os.makedirs(result_dir)
