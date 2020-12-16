@@ -9,6 +9,7 @@ import torch
 from sacred import Experiment
 from sacred.observers import FileStorageObserver, MongoObserver
 from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
+from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import DataLoader
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
@@ -82,7 +83,10 @@ def run(n_epochs,
     texts = df['texts'].to_numpy()
     labels = df['labels'].to_numpy()
 
-    data = TextDataset(texts, labels)
+    le = LabelEncoder()
+    labels_enc = le.fit_transform(labels)
+
+    data = TextDataset(texts, labels_enc)
     data_loader = DataLoader(dataset=data, batch_size=train_batch_size, shuffle=False)
 
 
