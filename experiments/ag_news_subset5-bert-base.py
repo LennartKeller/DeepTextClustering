@@ -1,5 +1,6 @@
 import os
 import pickle
+from functools import partial
 from time import gmtime, strftime
 
 import numpy as np
@@ -42,8 +43,8 @@ def cfg():
     val_batch_size = 16
     base_model = "bert-base-uncased"
     clustering_loss_weight = 1.0
-    embedding_extractor = concat_cls_n_hidden_states
-    annealing_alphas = np.arange(n_epochs) * 1000
+    embedding_extractor = partial(concat_cls_n_hidden_states, n=2)
+    annealing_alphas = np.ones(n_epochs) * 1000
     dataset = "../datasets/ag_news_subset5/ag_news_subset5.csv"
     train_idx_file = "../datasets/ag_news_subset5/splits/train"
     val_idx_file = "../datasets/ag_news_subset5/splits/validation"
