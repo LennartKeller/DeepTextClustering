@@ -3,6 +3,7 @@ from typing import Optional
 import numpy as np
 import torch
 from scipy.optimize import linear_sum_assignment
+from sklearn import metrics
 from torch.utils.data import Dataset
 
 
@@ -27,6 +28,13 @@ def cluster_accuracy(y_true, y_predicted, cluster_number: Optional[int] = None):
     reassignment = dict(zip(row_ind, col_ind))
     accuracy = count_matrix[row_ind, col_ind].sum() / y_predicted.size
     return reassignment, accuracy
+
+
+def purity_score(y_true, y_pred):
+    # compute contingency matrix (also called confusion matrix)
+    contingency_matrix = metrics.cluster.contingency_matrix(y_true, y_pred)
+    # return purity
+    return np.sum(np.amax(contingency_matrix, axis=0)) / np.sum(contingency_matrix)
 
 
 class TextDataset(Dataset):
