@@ -41,7 +41,7 @@ if mongo_enabled == 'true':
 @ex.config
 def cfg():
     n_epochs = 10
-    lr = 3e-5
+    lr = 2e-5
     train_batch_size = 8
     base_model = "distilbert-base-uncased"
     clustering_loss_weight = 1.0
