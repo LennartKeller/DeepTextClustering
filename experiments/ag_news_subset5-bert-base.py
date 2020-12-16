@@ -40,7 +40,7 @@ if mongo_enabled == 'true':
 @ex.config
 def cfg():
     n_epochs = 10
-    lr = 9e-05
+    lr = 2e-7
     train_batch_size = 8
     val_batch_size = 16
     base_model = "bert-base-uncased"
