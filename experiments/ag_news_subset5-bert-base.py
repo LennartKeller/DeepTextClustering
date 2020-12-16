@@ -122,7 +122,7 @@ def run(n_epochs,
     )
 
     # init optimizer & scheduler
-    opt = torch.optim.RMSprop(
+    opt = torch.optim.AdamW(
         params=model.parameters(),
         lr=lr,  # 2e-5, 5e-7,
         eps=1e-8
@@ -176,7 +176,7 @@ def run(n_epochs,
     result_df.to_csv(os.path.join(result_dir, 'opt_results_ag_news_subset10.csv'), index=False)
 
     # save results & model
-    os.makedirs(result_dir)
+    os.makedirs(result_dir, exist_ok=True)
     with open(os.path.join(result_dir, 'train_hist.h'), 'wb') as f:
         pickle.dump(hist, file=f)
 
