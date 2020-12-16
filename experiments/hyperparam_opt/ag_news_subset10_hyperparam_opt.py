@@ -16,7 +16,7 @@ from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from transformers_clustering.helpers import TextDataset, orig_annealing_alphas
-from transformers_clustering.helpers import cluster_accuracy
+from transformers_clustering.helpers import cluster_accuracy, purity_score
 from transformers_clustering.model import (
     init_model,
     train,
@@ -181,11 +181,13 @@ def run(n_epochs,
         best_matching, accuracy = cluster_accuracy(true_labels, predicted_labels)
         ari = adjusted_rand_score(true_labels, predicted_labels)
         nmi = normalized_mutual_info_score(true_labels, predicted_labels)
+        purity = purity_score(y_true=true_labels, y_pred=predicted_labels)
 
         run_results['best_matching'] = best_matching
         run_results['accuracy'] = accuracy
         run_results['ari'] = ari
         run_results['nmi'] = nmi
+
 
         # save train hist
         os.makedirs(result_dir, exist_ok=True)

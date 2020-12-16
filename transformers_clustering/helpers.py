@@ -31,6 +31,9 @@ def cluster_accuracy(y_true, y_predicted, cluster_number: Optional[int] = None):
 
 
 def purity_score(y_true, y_pred):
+    """
+    Source: https://stackoverflow.com/questions/34047540/python-clustering-purity-metric
+    """
     # compute contingency matrix (also called confusion matrix)
     contingency_matrix = metrics.cluster.contingency_matrix(y_true, y_pred)
     # return purity
