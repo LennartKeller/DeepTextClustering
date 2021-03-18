@@ -22,6 +22,10 @@ class ClusterOutput(ModelOutput):
     predicted_labels: torch.IntTensor = None
     embeddings: torch.FloatTensor = None
 
+def _execute_callbacks(callbacks, outer_scope_locals):
+    if callbacks:
+        for callback in callbacks:
+            callback(**outer_scope_locals)
 
 def cls_embedding_extractor(model_output: ModelOutput):
     return model_output.last_hidden_state[:, 0, :].float()
@@ -238,12 +242,12 @@ def train(
         metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
         verbose=True,
         on_train_start_callbacks: List[callable] = None,
-        after_batch_callbacks: List[callable] = None,
-        after_epoch_callbacks: List[callable] = None,
+        on_batch_end_callbacks: List[callable] = None,
+        on_epoch_end_callbacks: List[callable] = None,
         on_train_end_callbacks: List[callable] = None
 ):
 
-    if clustering_loss_weight and clustering_loss_weight:
+    if clustering_loss_weight and loss_factory:
         raise Exception("You can either use the clustering_loss_weight param or a loss_factory function. Not both")
 
     total_clustering_losses = []
@@ -253,9 +257,7 @@ def train(
     eval_hist = []
 
     assert len(annealing_alphas) >= n_epochs
-
-    for callback in on_train_start_callbacks:
-        callback(**locals())
+    _execute_callbacks(on_train_start_callbacks, locals())
 
     for epoch, alpha in zip(range(n_epochs), annealing_alphas):
         model.train()
@@ -287,8 +289,7 @@ def train(
                     f' ClusterLoss: {cluster_outputs.loss.item()} | LR: {scheduler.get_last_lr()[0]} | Alpha: {alpha}'
                 )
 
-            for callback in after_batch_callbacks:
-                callback(**locals())
+            _execute_callbacks(on_batch_end_callbacks, locals())
 
         if do_eval:
             if eval_data_loader is None:
@@ -308,8 +309,7 @@ def train(
                 print(f'{metric.__name__}: {value}')
             eval_hist.append(measurement)
 
-        for callback in after_epoch_callbacks:
-            callback(**locals())
+        _execute_callbacks(on_epoch_end_callbacks, locals())
 
         do_early_stopping = False
         if len(prediction_history) >= 2 and do_eval and early_stopping:
@@ -329,8 +329,7 @@ def train(
 
         if do_early_stopping:
 
-            for callback in on_train_end_callbacks:
-                callback(**locals())
+            _execute_callbacks(on_train_end_callbacks, locals())
 
             train_history = TrainHistory(
                 clustering_losses=total_clustering_losses,
@@ -341,8 +340,7 @@ def train(
             )
             return train_history
 
-    for callback in on_train_end_callbacks:
-        callback(**locals())
+    _execute_callbacks(on_train_end_callbacks, locals())
 
     train_history = TrainHistory(
         clustering_losses=total_clustering_losses,
