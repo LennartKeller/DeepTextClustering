@@ -233,6 +233,7 @@ def train(
         scheduler,
         annealing_alphas,
         train_data_loader,
+        gradient_accumulation_steps: int = 1,
         eval_data_loader=None,
         do_eval=True,
         early_stopping=False,
@@ -262,7 +263,7 @@ def train(
     for epoch, alpha in zip(range(n_epochs), annealing_alphas):
         model.train()
         train_data_it = tqdm(train_data_loader, desc='Train') if verbose else train_data_loader
-        for batch_texts, _ in train_data_it:
+        for index, (batch_texts, _) in enumerate(train_data_it):
             lm_outputs, cluster_outputs = model(texts=list(batch_texts), alpha=alpha)
             if clustering_loss_weight:
                 combined_loss = ((1 - clustering_loss_weight) * lm_outputs.loss) \
@@ -273,10 +274,13 @@ def train(
                 print("Warning: Failback loss computing.")
                 combined_loss = lm_outputs.loss + cluster_outputs.loss
 
-            optimizer.zero_grad()
-            combined_loss.backward()
-            optimizer.step()
-            scheduler.step()
+            scaled_loss = combined_loss / gradient_accumulation_steps
+            scaled_loss.backward()
+
+            if index % gradient_accumulation_steps == 0:
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad()
 
             total_clustering_losses.append(cluster_outputs.loss.item())
             total_lm_losses.append(lm_outputs.loss.item())
