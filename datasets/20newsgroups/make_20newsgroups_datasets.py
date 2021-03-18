@@ -7,7 +7,8 @@ if __name__ == '__main__':
     data = fetch_20newsgroups(subset="all")
     texts = np.array(data.data)
     labels = np.array(data.target)
-
+    df = pd.DataFrame(data={'texts': texts, 'labels': labels})
+    df.to_csv('20newsgroups.csv', index=False)
     # Read split indices
     with open('splits/test', 'r') as f:
         test_idx = np.array(list(map(int, f.read().splitlines())))
