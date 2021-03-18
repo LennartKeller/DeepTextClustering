@@ -244,6 +244,8 @@ def train(
         metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
         verbose=True,
         on_train_start_callbacks: List[callable] = None,
+        on_epoch_start_callbacks: List[callable] = None,
+        on_batch_start_callbacks: List[callable] = None,
         on_batch_end_callbacks: List[callable] = None,
         on_epoch_end_callbacks: List[callable] = None,
         on_train_end_callbacks: List[callable] = None
@@ -258,12 +260,20 @@ def train(
     eval_hist = []
 
     assert len(annealing_alphas) >= n_epochs
+
     _execute_callbacks(on_train_start_callbacks, locals())
 
     for epoch, alpha in zip(range(n_epochs), annealing_alphas):
+
+        _execute_callbacks(on_epoch_start_callbacks, locals())
+
         model.train()
         train_data_it = tqdm(train_data_loader, desc='Train') if verbose else train_data_loader
+
         for index, (batch_texts, _) in enumerate(train_data_it):
+
+            _execute_callbacks(on_batch_start_callbacks, locals())
+
             lm_outputs, cluster_outputs = model(texts=list(batch_texts), alpha=alpha)
             if clustering_loss_weight:
                 combined_loss = ((1 - clustering_loss_weight) * lm_outputs.loss) \
