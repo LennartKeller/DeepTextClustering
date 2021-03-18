@@ -185,6 +185,7 @@ def init_model(
         random_state=random_state
     )
 
+
     model = ClusterLM(
         lm_model=lm_model,
         tokenizer=tokenizer,
@@ -232,9 +233,18 @@ def train(
         early_stopping=False,
         early_stopping_tol=None,
         clustering_loss_weight=0.5,
+        lm_loss_weight=None,
         metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
-        verbose=True
+        verbose=True,
+        on_train_start_callbacks: List[callable] = None,
+        after_batch_callbacks: List[callable] = None,
+        after_epoch_callbacks: List[callable] = None,
+        on_train_end_callbacks: List[callable] = None
 ):
+
+    if (clustering_loss_weight and not lm_loss_weight) or (lm_loss_weight and not clustering_loss_weight):
+        raise Exception("Its only possible to weight one loss. Not both at the same time")
+
     total_clustering_losses = []
     total_lm_losses = []
     total_combined_losses = []
@@ -242,6 +252,10 @@ def train(
     eval_hist = []
 
     assert len(annealing_alphas) >= n_epochs
+
+    for callback in on_train_start_callbacks:
+        callback(**locals())
+
     for epoch, alpha in zip(range(n_epochs), annealing_alphas):
         model.train()
         train_data_it = tqdm(train_data_loader, desc='Train') if verbose else train_data_loader
@@ -264,6 +278,9 @@ def train(
                     f' ClusterLoss: {cluster_outputs.loss.item()} | LR: {scheduler.get_last_lr()[0]} | Alpha: {alpha}'
                 )
 
+            for callback in after_batch_callbacks:
+                callback(**locals())
+
         if do_eval:
             if eval_data_loader is None:
                 eval_data_loader = train_data_it if not verbose else train_data_it.iterable
@@ -282,6 +299,9 @@ def train(
                 print(f'{metric.__name__}: {value}')
             eval_hist.append(measurement)
 
+        for callback in after_epoch_callbacks:
+            callback(**locals())
+
         do_early_stopping = False
         if len(prediction_history) >= 2 and do_eval and early_stopping:
             if early_stopping_tol is None:
@@ -299,6 +319,10 @@ def train(
                     do_early_stopping = True
 
         if do_early_stopping:
+
+            for callback in on_train_end_callbacks:
+                callback(**locals())
+
             train_history = TrainHistory(
                 clustering_losses=total_clustering_losses,
                 lm_losses=total_lm_losses,
@@ -307,6 +331,9 @@ def train(
                 eval_hist=eval_hist
             )
             return train_history
+
+    for callback in on_train_end_callbacks:
+        callback(**locals())
 
     train_history = TrainHistory(
         clustering_losses=total_clustering_losses,
