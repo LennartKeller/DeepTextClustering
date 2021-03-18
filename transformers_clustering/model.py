@@ -267,7 +267,7 @@ def train(
             if clustering_loss_weight:
                 combined_loss = ((1 - clustering_loss_weight) * lm_outputs.loss) \
                                 + (clustering_loss_weight * cluster_outputs.loss)
-            if loss_factory:
+            elif loss_factory:
                 combined_loss = loss_factory(lm_outputs.loss, cluster_outputs.loss)
             else:
                 print("Warning: Failback loss computing.")
