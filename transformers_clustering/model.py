@@ -22,10 +22,12 @@ class ClusterOutput(ModelOutput):
     predicted_labels: torch.IntTensor = None
     embeddings: torch.FloatTensor = None
 
+
 def _execute_callbacks(callbacks, outer_scope_locals):
     if callbacks:
         for callback in callbacks:
             callback(**outer_scope_locals)
+
 
 def cls_embedding_extractor(model_output: ModelOutput):
     return model_output.last_hidden_state[:, 0, :].float()
@@ -189,7 +191,6 @@ def init_model(
         random_state=random_state
     )
 
-
     model = ClusterLM(
         lm_model=lm_model,
         tokenizer=tokenizer,
@@ -246,7 +247,6 @@ def train(
         on_epoch_end_callbacks: List[callable] = None,
         on_train_end_callbacks: List[callable] = None
 ):
-
     if clustering_loss_weight and loss_factory:
         raise Exception("You can either use the clustering_loss_weight param or a loss_factory function. Not both")
 
@@ -272,7 +272,6 @@ def train(
             else:
                 print("Warning: Failback loss computing.")
                 combined_loss = lm_outputs.loss + cluster_outputs.loss
-
 
             optimizer.zero_grad()
             combined_loss.backward()
@@ -328,7 +327,6 @@ def train(
                     do_early_stopping = True
 
         if do_early_stopping:
-
             _execute_callbacks(on_train_end_callbacks, locals())
 
             train_history = TrainHistory(
