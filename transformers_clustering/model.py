@@ -233,6 +233,7 @@ def train(
         early_stopping=False,
         early_stopping_tol=None,
         clustering_loss_weight=0.5,
+        loss_factory: callable = None,
         lm_loss_weight=None,
         metrics=(cluster_accuracy, adjusted_rand_score, normalized_mutual_info_score),
         verbose=True,
@@ -242,8 +243,8 @@ def train(
         on_train_end_callbacks: List[callable] = None
 ):
 
-    if (clustering_loss_weight and not lm_loss_weight) or (lm_loss_weight and not clustering_loss_weight):
-        raise Exception("Its only possible to weight one loss. Not both at the same time")
+    if clustering_loss_weight and clustering_loss_weight:
+        raise Exception("You can either use the clustering_loss_weight param or a loss_factory function. Not both")
 
     total_clustering_losses = []
     total_lm_losses = []
@@ -261,7 +262,15 @@ def train(
         train_data_it = tqdm(train_data_loader, desc='Train') if verbose else train_data_loader
         for batch_texts, _ in train_data_it:
             lm_outputs, cluster_outputs = model(texts=list(batch_texts), alpha=alpha)
-            combined_loss = lm_outputs.loss + (clustering_loss_weight * cluster_outputs.loss)
+            if clustering_loss_weight:
+                combined_loss = ((1 - clustering_loss_weight) * lm_outputs.loss) \
+                                + (clustering_loss_weight * cluster_outputs.loss)
+            if loss_factory:
+                combined_loss = loss_factory(lm_outputs.loss, cluster_outputs.loss)
+            else:
+                print("Warning: Failback loss computing.")
+                combined_loss = lm_outputs.loss + cluster_outputs.loss
+
 
             optimizer.zero_grad()
             combined_loss.backward()
