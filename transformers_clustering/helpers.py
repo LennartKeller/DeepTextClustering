@@ -128,3 +128,17 @@ def orig_annealing_alphas(n_epochs, constant_value=1):
         alphas[i] = (2 ** (1 / (np.log(i + 1)) ** 2)) * alphas[i - 1]
     annealing_alphas = alphas / constant_value
     return annealing_alphas
+
+
+def callback_factory(**callback_kwargs):
+    """
+    Callback factory to insert data from outside scope into the callbacks
+    Note: If a inserted object has the same name like an object from inside the train function it will fail.
+    """
+    def callback_decorator(callback):
+        def wrapper(*args, **kwargs):
+            merged_kwargs = {**kwargs, **callback_kwargs}
+            result = callback(*args, **merged_kwargs)
+            return result
+        return wrapper
+    return callback_decorator
