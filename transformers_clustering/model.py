@@ -160,14 +160,15 @@ class ClusterLM(nn.Module):
 
         return lm_outputs, cluster_outputs
 
-class DifferentibleKMeans(nn.Module):
+
+class DifferentiableKMeans(nn.Module):
 
     def __init__(self,
                  initial_centroids: torch.tensor,
                  metric=lp_distance,
                  device='cpu'
                  ):
-        super(ClusterLM, self).__init__()
+        super(DifferentiableKMeans, self).__init__()
 
         self.initial_centroids = initial_centroids
 
@@ -181,8 +182,8 @@ class DifferentibleKMeans(nn.Module):
 
     def forward(self, input_embeddings, alpha=1.0):
         """
-        Input: texts and labels (optional)
-        Returns: lm_language modelling output, own output dict (clustering_loss, predicted_labels)
+        Input: input features
+        Returns: clustering loss and nearest centroids (e.g. cluster assignments for input)
         """
 
         # 1. Compute distances from each input embedding to each centroids
