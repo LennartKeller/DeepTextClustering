@@ -160,6 +160,52 @@ class ClusterLM(nn.Module):
 
         return lm_outputs, cluster_outputs
 
+class DifferentibleKMeans(nn.Module):
+
+    def __init__(self,
+                 initial_centroids: torch.tensor,
+                 metric=lp_distance,
+                 device='cpu'
+                 ):
+        super(ClusterLM, self).__init__()
+
+        self.initial_centroids = initial_centroids
+
+        self.register_parameter('centroids', nn.Parameter(initial_centroids.clone().float(), requires_grad=True))
+
+        self.metric = metric
+
+        self.device = device
+
+        self.to(self.device)
+
+    def forward(self, input_embeddings, alpha=1.0):
+        """
+        Input: texts and labels (optional)
+        Returns: lm_language modelling output, own output dict (clustering_loss, predicted_labels)
+        """
+
+        # 1. Compute distances from each input embedding to each centroids
+        distances = torch.stack([self.metric(embedding.unsqueeze(0), self.centroids) for embedding in input_embeddings])
+        nearest_centroids = torch.argmin(distances.cpu().clone().detach(), dim=1)
+        distances = torch.transpose(distances, 0, 1)  # => shape (n_centroids, n_samples)
+
+        # 2. Compute the paramterized softmin for each centroid of each distance to each centroid per input sample
+        # Find min distances for each centroid
+        min_distances = torch.min(distances, dim=1).values
+        # Compute exponetials
+        exponentials = torch.exp(- alpha * (distances - min_distances.unsqueeze(1)))
+        # Compute softmin
+        softmin = exponentials / torch.sum(exponentials, dim=1).unsqueeze(1)
+
+        # 3. Weight the distance between each sample and each centroid
+        weighted_distances = distances * softmin
+
+        # 4. Sum over weighted_distances to obtain loss
+        clustering_loss = weighted_distances.sum(dim=1).mean()
+
+        return clustering_loss, nearest_centroids
+
 
 def init_model(
         lm_model,
