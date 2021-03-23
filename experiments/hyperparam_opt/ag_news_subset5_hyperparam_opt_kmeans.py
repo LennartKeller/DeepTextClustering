@@ -1,6 +1,4 @@
 import os
-import pickle
-from functools import partial
 from pprint import pprint
 from time import gmtime, strftime
 
@@ -20,7 +18,7 @@ from umap import UMAP
 from transformers_clustering.helpers import cluster_accuracy
 
 
-ex = Experiment('ag_news_subset5_opt-distilbert')
+ex = Experiment('ag_news_subset5_opt-kmeans')
 ex.observers.append(FileStorageObserver('../results/sacred_runs'))
 
 mongo_enabled = os.environ.get('MONGO_SACRED_ENABLED')
