@@ -79,8 +79,8 @@ def run(hyperparam_grid,
     val_labels = df_val['labels'].to_numpy()
 
     tfidf = TfidfVectorizer(max_features=20000, stop_words='english')
-    X_train = tfidf.fit_transform(train_texts)
-    X_val = tfidf.transform(val_texts)
+    X_train = tfidf.fit_transform(train_texts).toarray()
+    X_val = tfidf.transform(val_texts).toarray()
 
     pipeline = Pipeline([
         ('umap', UMAP()),
