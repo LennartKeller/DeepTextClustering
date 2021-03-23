@@ -84,7 +84,7 @@ def run(hyperparam_grid,
 
     pipeline = Pipeline([
         ('umap', UMAP()),
-        ('kmeans', KMeans(n_cluster=len(np.unique(train_labels)), n_jobs=6, n_init=20))
+        ('kmeans', KMeans(n_clusters=len(np.unique(train_labels)), n_jobs=6, n_init=20))
     ])
 
     # insert code here!
