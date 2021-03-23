@@ -44,8 +44,8 @@ def cfg():
     lr = 2e-5
     train_batch_size = 8
     base_model = "distilbert-base-uncased"
-    clustering_loss_weight = 1.0
-    embedding_extractor = partial(concat_cls_n_hidden_states, n=2)
+    clustering_loss_weight = 0.5
+    embedding_extractor = partial(concat_cls_n_hidden_states, n=1)
     annealing_alphas = np.ones(n_epochs) * 1000
     dataset = "../datasets/trec6/trec6.csv"
     result_dir = f"../results/trec6-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"

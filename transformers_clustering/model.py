@@ -96,7 +96,7 @@ class ClusterLM(nn.Module):
 
         self.to(self.device)
 
-    def forward(self, texts, alpha=1.0):
+    def forward(self, texts, alpha=1.0, inference=False):
         """
         Input: texts and labels (optional)
         Returns: lm_language modelling output, own output dict (clustering_loss, predicted_labels)
@@ -105,7 +105,7 @@ class ClusterLM(nn.Module):
 
         lm_outputs = ModelOutput(loss=torch.tensor(0.0, requires_grad=True).to(self.device))
 
-        if self.do_language_modeling:
+        if not inference and self.do_language_modeling:
             inputs = self.tokenizer(
                 texts,
                 return_tensors='pt',
@@ -258,7 +258,7 @@ def evaluate(model, eval_data_loader, verbose=True):
     for batch_texts, batch_labels in eval_data_it:
         true_labels.extend(batch_labels.numpy().astype('int'))
         with torch.no_grad():
-            _, cluster_outputs = model(texts=list(batch_texts))
+            _, cluster_outputs = model(texts=list(batch_texts), inference=True)
         predicted_labels.extend(cluster_outputs.predicted_labels.numpy().astype('int'))
 
     return np.array(predicted_labels), np.array(true_labels)
