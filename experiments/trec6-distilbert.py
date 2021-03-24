@@ -46,8 +46,8 @@ def cfg():
     gradient_accumulation_steps = 4
     base_model = "distilbert-base-uncased"
     clustering_loss_weight = 0.5
-    embedding_extractor = partial(concat_cls_n_hidden_states, n=1)
-    annealing_alphas = np.ones(n_epochs) * 1000
+    embedding_extractor = partial(concat_cls_n_hidden_states, n=5)
+    annealing_alphas = list(range(1, n_epochs + 1))
     dataset = "../datasets/trec6/trec6.csv"
     result_dir = f"../results/trec6-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     early_stopping = True
