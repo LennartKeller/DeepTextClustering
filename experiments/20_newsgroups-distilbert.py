@@ -40,6 +40,7 @@ def cfg():
     n_epochs = 10
     lr = 2e-5
     train_batch_size = 16
+    val_batch_size = 32
     gradient_accumulation_steps = 1
     base_model = "distilbert-base-uncased"
     clustering_loss_weight = 0.5
@@ -57,7 +58,7 @@ def cfg():
 @ex.automain
 def run(n_epochs,
         lr,
-        batch_size,
+        train_batch_size,
         val_batch_size,
         base_model,
         clustering_loss_weight,
@@ -83,7 +84,7 @@ def run(n_epochs,
     train_labels = train_df['labels'].to_numpy()
 
     train_data = TextDataset(train_texts, train_labels)
-    train_data_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
+    train_data_loader = DataLoader(dataset=train_data, batch_size=train_batch_size, shuffle=False)
 
     val_df = pd.read_csv(val_dataset)
 
