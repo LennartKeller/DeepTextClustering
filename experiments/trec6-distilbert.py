@@ -43,7 +43,7 @@ def cfg():
     n_epochs = 10
     lr = 2e-5
     train_batch_size = 16
-    gradient_accumulation_steps = 4
+    gradient_accumulation_steps = 1
     base_model = "distilbert-base-uncased"
     clustering_loss_weight = 0.5
     embedding_extractor = partial(concat_cls_n_hidden_states, n=5)

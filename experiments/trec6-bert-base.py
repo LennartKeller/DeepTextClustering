@@ -41,14 +41,15 @@ if mongo_enabled == 'true':
 @ex.config
 def cfg():
     n_epochs = 10
-    lr = 3e-5
+    lr = 2e-5
     train_batch_size = 8
+    gradient_accumulation_steps = 2
     base_model = "bert-base-uncased"
-    clustering_loss_weight = 1.0
-    embedding_extractor = partial(concat_cls_n_hidden_states, n=2)
-    annealing_alphas = np.ones(n_epochs) * 1000
+    clustering_loss_weight = 0.5
+    embedding_extractor = partial(concat_cls_n_hidden_states, n=5)
+    annealing_alphas = list(range(1, n_epochs + 1))
     dataset = "../datasets/trec6/trec6.csv"
-    result_dir = f"../results/trec6-bert-base/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
+    result_dir = f"../results/trec6-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     early_stopping = True
     early_stopping_tol = 0.01
     device = "cuda:0"
