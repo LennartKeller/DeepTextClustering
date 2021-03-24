@@ -39,9 +39,9 @@ if mongo_enabled == 'true':
 def cfg():
     n_epochs = 10
     lr = 2e-5
-    train_batch_size = 16
-    val_batch_size = 32
-    gradient_accumulation_steps = 1
+    train_batch_size = 8
+    val_batch_size = 16
+    gradient_accumulation_steps = 2
     base_model = "distilbert-base-uncased"
     clustering_loss_weight = 0.5
     embedding_extractor = partial(concat_cls_n_hidden_states, n=5)
