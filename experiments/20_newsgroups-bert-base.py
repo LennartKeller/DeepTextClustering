@@ -1,6 +1,7 @@
 import os
 import pickle
 from time import gmtime, strftime
+from functools import partial
 
 import numpy as np
 import pandas as pd
@@ -36,14 +37,14 @@ if mongo_enabled == 'true':
 
 @ex.config
 def cfg():
-    n_epochs = 20
-    lr = 2e-7
-    batch_size = 8
-    val_batch_size = 16
+    n_epochs = 10
+    lr = 2e-5
+    train_batch_size = 8
+    gradient_accumulation_steps = 2
     base_model = "bert-base-uncased"
-    clustering_loss_weight = 1.0
-    embedding_extractor = concat_cls_n_hidden_states
-    annealing_alphas = np.arange(1, n_epochs + 1)
+    clustering_loss_weight = 0.5
+    embedding_extractor = partial(concat_cls_n_hidden_states, n=5)
+    annealing_alphas = list(range(1, n_epochs + 1))
     dataset = "../datasets/20newsgroups/20newsgroups_train.csv"
     val_dataset = "../datasets/20newsgroups/20newsgroups_val.csv"
     result_dir = f"../results/20newsgroups-bert-base/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
