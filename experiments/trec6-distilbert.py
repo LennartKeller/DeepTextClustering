@@ -42,7 +42,8 @@ if mongo_enabled == 'true':
 def cfg():
     n_epochs = 10
     lr = 2e-5
-    train_batch_size = 8
+    train_batch_size = 16
+    gradient_accumulation_steps = 4
     base_model = "distilbert-base-uncased"
     clustering_loss_weight = 0.5
     embedding_extractor = partial(concat_cls_n_hidden_states, n=1)
@@ -59,6 +60,7 @@ def cfg():
 def run(n_epochs,
         lr,
         train_batch_size,
+        gradient_accumulation_steps,
         base_model,
         clustering_loss_weight,
         embedding_extractor,
@@ -129,6 +131,7 @@ def run(n_epochs,
         scheduler=scheduler,
         annealing_alphas=annealing_alphas,
         train_data_loader=data_loader,
+        gradient_accumulation_steps=gradient_accumulation_steps,
         eval_data_loader=data_loader,
         clustering_loss_weight=clustering_loss_weight,
         early_stopping=early_stopping,
