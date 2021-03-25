@@ -10,10 +10,10 @@ from sacred import Experiment
 from sacred.observers import FileStorageObserver, MongoObserver
 from torch.utils.data import DataLoader
 from transformers import AutoModelForMaskedLM, AutoTokenizer
-from transformers import get_linear_schedule_with_warmup
+
 from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
-from transformers_clustering.helpers import TextDataset, purity_score, cluster_accuracy
-from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states, evaluate
+from transformers_clustering.helpers import purity_score, cluster_accuracy
+
 
 ex = Experiment('ag_news_subset5-distilbert')
 ex.observers.append(FileStorageObserver('../results/ag_news_subset5-distilbert/sacred_runs'))
@@ -40,6 +40,7 @@ def cfg():
     n_inits = 20
     max_features = 20000
     umap_n_components = 300
+    result_dir = f"../results/ag_news_subset5-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     device = 'cuda:0'
     random_state = 42
 
