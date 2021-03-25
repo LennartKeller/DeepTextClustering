@@ -42,6 +42,7 @@ def cfg():
     n_epochs = 10
     lr = 2e-5
     train_batch_size = 8
+    val_batch_size = 16
     gradient_accumulation_steps = 2
     base_model = "bert-base-uncased"
     clustering_loss_weight = 0.5
@@ -86,7 +87,12 @@ def run(n_epochs,
     with open(train_idx_file, 'r') as f:
         train_idx = np.array(list(map(int, f.readlines())))
 
-    df_train = df.iloc[train_idx]
+    with open(val_idx_file, 'r') as f:
+        val_idx = np.array(list(map(int, f.readlines())))
+
+    all_idx = np.concatenate((train_idx, val_idx))
+
+    df_train = df.iloc[all_idx].copy()
 
     train_texts = df_train['texts'].to_numpy()
     train_labels = df_train['labels'].to_numpy()
@@ -94,10 +100,7 @@ def run(n_epochs,
     train_data = TextDataset(train_texts, train_labels)
     train_data_loader = DataLoader(dataset=train_data, batch_size=train_batch_size, shuffle=False)
 
-    with open(val_idx_file, 'r') as f:
-        val_idx = np.array(list(map(int, f.readlines())))
-
-    df_val = df.iloc[val_idx]
+    df_val = df.iloc[val_idx].copy()
 
     val_texts = df_val['texts'].to_numpy()
     val_labels = df_val['labels'].to_numpy()
@@ -122,7 +125,7 @@ def run(n_epochs,
     )
 
     # init optimizer & scheduler
-    opt = torch.optim.AdamW(
+    opt = torch.optim.RMSprop(
         params=model.parameters(),
         lr=lr,  # 2e-5, 5e-7,
         eps=1e-8
@@ -144,7 +147,6 @@ def run(n_epochs,
         scheduler=scheduler,
         annealing_alphas=annealing_alphas,
         train_data_loader=train_data_loader,
-        eval_data_loader=val_data_loader,
         clustering_loss_weight=clustering_loss_weight,
         early_stopping=early_stopping,
         early_stopping_tol=early_stopping_tol,

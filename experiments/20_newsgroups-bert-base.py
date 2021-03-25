@@ -59,7 +59,7 @@ def cfg():
 @ex.automain
 def run(n_epochs,
         lr,
-        batch_size,
+        train_batch_size,
         val_batch_size,
         base_model,
         clustering_loss_weight,
@@ -85,7 +85,7 @@ def run(n_epochs,
     train_labels = train_df['labels'].to_numpy()
 
     train_data = TextDataset(train_texts, train_labels)
-    train_data_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False)
+    train_data_loader = DataLoader(dataset=train_data, batch_size=train_batch_size, shuffle=False)
 
     val_df = pd.read_csv(val_dataset)
 

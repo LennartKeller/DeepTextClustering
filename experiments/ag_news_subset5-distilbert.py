@@ -40,6 +40,7 @@ def cfg():
     n_epochs = 10
     lr = 2e-5
     train_batch_size = 16
+    val_batch_size = 32
     gradient_accumulation_steps = 1
     base_model = "distilbert-base-uncased"
     clustering_loss_weight = 0.5
@@ -47,6 +48,7 @@ def cfg():
     annealing_alphas = np.ones(n_epochs) * 1000.0
     dataset = "../datasets/ag_news_subset5/ag_news_subset5.csv"
     train_idx_file = "../datasets/ag_news_subset5/splits/train"
+    val_idx_file = "../datasets/ag_news_subset5/splits/validation"
     result_dir = f"../results/ag_news_subset5-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     early_stopping = True
     early_stopping_tol = 0.01
@@ -57,13 +59,15 @@ def cfg():
 @ex.automain
 def run(n_epochs,
         lr,
-        batch_size,
+        train_batch_size,
+        val_batch_size,
         base_model,
         clustering_loss_weight,
         embedding_extractor,
         annealing_alphas,
         dataset,
         train_idx_file,
+        val_idx_file,
         result_dir,
         early_stopping,
         early_stopping_tol,
@@ -81,13 +85,28 @@ def run(n_epochs,
     with open(train_idx_file, 'r') as f:
         train_idx = np.array(list(map(int, f.readlines())))
 
-    df = df.iloc[train_idx].copy()
+    with open(val_idx_file, 'r') as f:
+        val_idx = np.array(list(map(int, f.readlines())))
 
-    texts = df['texts'].to_numpy()
-    labels = df['labels'].to_numpy()
+    all_idx = np.concatenate((train_idx, val_idx))
 
-    data = TextDataset(texts, labels)
-    data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False)
+    df_train = df.iloc[all_idx].copy()
+
+    train_texts = df_train['texts'].to_numpy()
+    train_labels = df_train['labels'].to_numpy()
+
+    train_data = TextDataset(train_texts, train_labels)
+    train_data_loader = DataLoader(dataset=train_data, batch_size=train_batch_size, shuffle=False)
+
+
+    df_val = df.iloc[val_idx].copy()
+
+    val_texts = df_val['texts'].to_numpy()
+    val_labels = df_val['labels'].to_numpy()
+
+    val_data = TextDataset(val_texts, val_labels)
+    val_data_loader = DataLoader(dataset=val_data, batch_size=val_batch_size, shuffle=False)
+
 
     # init lm model & tokenizer
     lm_model = AutoModelForMaskedLM.from_pretrained(base_model, return_dict=True, output_hidden_states=True)
@@ -99,9 +118,9 @@ def run(n_epochs,
     model, initial_centroids, initial_embeddings = init_model(
         lm_model=lm_model,
         tokenizer=tokenizer,
-        data_loader=data_loader,
+        data_loader=train_data_loader,
         embedding_extractor=embedding_extractor,
-        n_clusters=np.unique(labels).shape[0],
+        n_clusters=np.unique(train_labels).shape[0],
         device=device
     )
 
@@ -112,11 +131,11 @@ def run(n_epochs,
         eps=1e-8
     )
 
-    total_steps = len(data_loader) * n_epochs
+    total_steps = len(train_data_loader) * n_epochs
 
     scheduler = get_linear_schedule_with_warmup(
         optimizer=opt,
-        num_warmup_steps=int(len(data_loader) * 0.5),
+        num_warmup_steps=int(len(train_data_loader) * 0.5),
         num_training_steps=total_steps
     )
 
@@ -127,7 +146,7 @@ def run(n_epochs,
         optimizer=opt,
         scheduler=scheduler,
         annealing_alphas=annealing_alphas,
-        train_data_loader=data_loader,
+        train_data_loader=train_data_loader,
         clustering_loss_weight=clustering_loss_weight,
         early_stopping=early_stopping,
         early_stopping_tol=early_stopping_tol,
@@ -139,7 +158,7 @@ def run(n_epochs,
 
     predicted_labels, true_labels = evaluate(
         model=model,
-        eval_data_loader=data_loader,
+        eval_data_loader=val_data_loader,
         verbose=True
     )
 
