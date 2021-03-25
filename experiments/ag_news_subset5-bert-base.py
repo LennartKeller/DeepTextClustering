@@ -40,13 +40,13 @@ if mongo_enabled == 'true':
 @ex.config
 def cfg():
     n_epochs = 10
-    lr = 2e-7
+    lr = 2e-5
     train_batch_size = 8
-    val_batch_size = 16
+    gradient_accumulation_steps = 2
     base_model = "bert-base-uncased"
-    clustering_loss_weight = 1.0
-    embedding_extractor = partial(concat_cls_n_hidden_states, n=2)
-    annealing_alphas = np.ones(n_epochs) * 1000
+    clustering_loss_weight = 0.5
+    embedding_extractor = partial(concat_cls_n_hidden_states, n=5)
+    annealing_alphas = list(range(1, n_epochs + 1))
     dataset = "../datasets/ag_news_subset5/ag_news_subset5.csv"
     train_idx_file = "../datasets/ag_news_subset5/splits/train"
     val_idx_file = "../datasets/ag_news_subset5/splits/validation"
@@ -175,7 +175,7 @@ def run(n_epochs,
     os.makedirs(result_dir, exist_ok=True)
 
     result_df = pd.DataFrame.from_records([run_results])
-    result_df.to_csv(os.path.join(result_dir, 'opt_results_ag_news_subset10.csv'), index=False)
+    result_df.to_csv(os.path.join(result_dir, 'ag_news_subset5-bert-base.csv'), index=False)
 
     # save results & model
     os.makedirs(result_dir, exist_ok=True)

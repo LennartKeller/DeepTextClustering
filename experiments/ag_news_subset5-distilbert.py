@@ -1,6 +1,7 @@
 import os
 import pickle
 from time import gmtime, strftime
+from functools import partial
 
 import numpy as np
 import pandas as pd
@@ -10,9 +11,9 @@ from sacred.observers import FileStorageObserver, MongoObserver
 from torch.utils.data import DataLoader
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
-
-from transformers_clustering.helpers import TextDataset
-from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states
+from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
+from transformers_clustering.helpers import TextDataset, purity_score, cluster_accuracy
+from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states, evaluate
 
 ex = Experiment('ag_news_subset5-distilbert')
 ex.observers.append(FileStorageObserver('../results/ag_news_subset5-distilbert/sacred_runs'))
@@ -36,13 +37,14 @@ if mongo_enabled == 'true':
 
 @ex.config
 def cfg():
-    n_epochs = 20
+    n_epochs = 10
     lr = 2e-5
-    batch_size = 16
+    train_batch_size = 16
+    gradient_accumulation_steps = 1
     base_model = "distilbert-base-uncased"
-    clustering_loss_weight = 1.0
-    embedding_extractor = concat_cls_n_hidden_states
-    annealing_alphas = np.arange(1, n_epochs + 1)
+    clustering_loss_weight = 0.5
+    embedding_extractor = partial(concat_cls_n_hidden_states, n=5)
+    annealing_alphas = np.ones(n_epochs) * 1000.0
     dataset = "../datasets/ag_news_subset5/ag_news_subset5.csv"
     train_idx_file = "../datasets/ag_news_subset5/splits/train"
     result_dir = f"../results/ag_news_subset5-distilbert/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
@@ -132,9 +134,33 @@ def run(n_epochs,
         verbose=True
     )
 
+    # do eval
+    run_results = {}
+
+    predicted_labels, true_labels = evaluate(
+        model=model,
+        eval_data_loader=data_loader,
+        verbose=True
+    )
+
+    best_matching, accuracy = cluster_accuracy(true_labels, predicted_labels)
+    ari = adjusted_rand_score(true_labels, predicted_labels)
+    nmi = normalized_mutual_info_score(true_labels, predicted_labels)
+    purity = purity_score(y_true=true_labels, y_pred=predicted_labels)
+
+    run_results['best_matching'] = best_matching
+    run_results['accuracy'] = accuracy
+    run_results['ari'] = ari
+    run_results['nmi'] = nmi
+    run_results['purity'] = purity  # use purity to compare with microsoft paper
+
+
     # save results & model
     os.makedirs(result_dir)
     with open(os.path.join(result_dir, 'train_hist.h'), 'wb') as f:
         pickle.dump(hist, file=f)
+
+    result_df = pd.DataFrame.from_records([run_results])
+    result_df.to_csv(os.path.join(result_dir, f'ag_news_subset5-distilbert.csv'), index=False)
 
     torch.save(model, os.path.join(result_dir, 'model.bin'))

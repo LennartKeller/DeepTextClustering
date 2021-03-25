@@ -1,19 +1,21 @@
 import os
 import pickle
-from time import gmtime, strftime
 from functools import partial
+from time import gmtime, strftime
 
 import numpy as np
 import pandas as pd
 import torch
 from sacred import Experiment
 from sacred.observers import FileStorageObserver, MongoObserver
+from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
 from torch.utils.data import DataLoader
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from transformers_clustering.helpers import TextDataset
-from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states
+from transformers_clustering.helpers import cluster_accuracy, purity_score
+from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states, evaluate
 
 ex = Experiment('20newsgroups-bert-base')
 ex.observers.append(FileStorageObserver('../results/sacred_runs/20newsgroups-bert-base/'))
@@ -138,9 +140,34 @@ def run(n_epochs,
         early_stopping_tol=early_stopping_tol,
         verbose=True
     )
+    # do eval
+    run_results = {}
+
+    predicted_labels, true_labels = evaluate(
+        model=model,
+        eval_data_loader=val_data_loader,
+        verbose=True
+    )
+
+    best_matching, accuracy = cluster_accuracy(true_labels, predicted_labels)
+    ari = adjusted_rand_score(true_labels, predicted_labels)
+    nmi = normalized_mutual_info_score(true_labels, predicted_labels)
+    purity = purity_score(y_true=true_labels, y_pred=predicted_labels)
+
+    run_results['best_matching'] = best_matching
+    run_results['accuracy'] = accuracy
+    run_results['ari'] = ari
+    run_results['nmi'] = nmi
+    run_results['purity'] = purity  # use purity to compare with microsoft paper
+
+    # save train hist
+    os.makedirs(result_dir, exist_ok=True)
+
+    result_df = pd.DataFrame.from_records([run_results])
+    result_df.to_csv(os.path.join(result_dir, '20_newsgroups-bert-base.csv'), index=False)
 
     # save results & model
-    os.makedirs(result_dir)
+    os.makedirs(result_dir, exist_ok=True)
     with open(os.path.join(result_dir, 'train_hist.h'), 'wb') as f:
         pickle.dump(hist, file=f)
 
