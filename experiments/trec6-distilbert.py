@@ -109,7 +109,7 @@ def run(n_epochs,
     )
 
     # init optimizer & scheduler
-    opt = torch.optim.AdamW(
+    opt = torch.optim.RMSprop(
         params=model.parameters(),
         lr=lr,  # 2e-5, 5e-7,
         eps=1e-8
