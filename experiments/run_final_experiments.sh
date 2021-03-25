@@ -12,4 +12,4 @@ python trec6-distilbert.py ||
 python trec6-bert-base.py ||
 python trec6-distilbert.py ||
 python 20_newsgroups-distilbert.py ||
-python 20_newsgroups-bert-base.py ||
+python 20_newsgroups-bert-base.py
