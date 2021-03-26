@@ -76,7 +76,7 @@ def run(n_init,
     X_train = umap.fit_transform(X_train.toarray())
     X_test = umap.transform(X_test.toarray())
 
-    kmeans = KMeans(n_init=n_init, n_cluster=len(np.unique(train_labels)))
+    kmeans = KMeans(n_init=n_init, n_clusters=len(np.unique(train_labels)))
     kmeans.fit(X_train)
     predicted_labels = kmeans.predict(X_test)
 
