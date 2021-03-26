@@ -92,6 +92,7 @@ def run(n_init,
     run_results['nmi'] = nmi
     run_results['purity'] = purity  # use purity to compare with microsoft paper
 
+    os.makedirs(result_dir, exist_ok=True)
     result_df = pd.DataFrame.from_records([run_results])
     result_df.to_csv(os.path.join(result_dir, f'20newsgroups-kmeans.csv'), index=False)
 
