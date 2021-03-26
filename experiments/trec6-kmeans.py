@@ -15,8 +15,8 @@ from umap import UMAP
 from transformers_clustering.helpers import purity_score, cluster_accuracy
 
 
-ex = Experiment('ag_news_subset5-kmeans')
-ex.observers.append(FileStorageObserver('../results/ag_news_subset5-kmeans/sacred_runs'))
+ex = Experiment('trec6-kmeans')
+ex.observers.append(FileStorageObserver('../results/sacred_runs/trec6-kmeans/'))
 
 mongo_enabled = os.environ.get('MONGO_SACRED_ENABLED')
 mongo_user = os.environ.get('MONGO_SACRED_USER')
@@ -40,10 +40,9 @@ def cfg():
     n_init = 20
     max_features = 20000
     umap_n_components = 100
-    dataset = "../datasets/ag_news_subset5/ag_news_subset5.csv"
-    train_idx_file = "../datasets/ag_news_subset5/splits/train"
-    val_idx_file = "../datasets/ag_news_subset5/splits/validation"
-    result_dir = f"../results/ag_news_subset5-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
+    dataset = "../datasets/trec6/trec6.csv"
+    result_dir = f"../results/trec6-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
+
     random_state = 42
 
 @ex.automain
@@ -51,8 +50,6 @@ def run(n_init,
         max_features,
         umap_n_components,
         dataset,
-        train_idx_file,
-        val_idx_file,
         result_dir,
         random_state
         ):
@@ -60,42 +57,24 @@ def run(n_init,
     np.random.seed(random_state)
 
     # load data
-    df = pd.read_csv(dataset)
+    train_df = pd.read_csv(dataset)
 
-    with open(train_idx_file, 'r') as f:
-        train_idx = np.array(list(map(int, f.readlines())))
-
-    with open(val_idx_file, 'r') as f:
-        val_idx = np.array(list(map(int, f.readlines())))
-
-    all_idx = np.concatenate((train_idx, val_idx))
-
-    df_train = df.iloc[all_idx].copy()
-
-    train_texts = df_train['texts'].to_numpy()
-    train_labels = df_train['labels'].to_numpy()
-
-    df_val = df.iloc[val_idx].copy()
-
-    val_texts = df_val['texts'].to_numpy()
-    val_labels = df_val['labels'].to_numpy()
+    texts = train_df['texts'].to_numpy()
+    labels = train_df['labels'].to_numpy()
 
     tfidf = TfidfVectorizer(max_features=max_features)
-    X_train = tfidf.fit_transform(train_texts)
-    X_test = tfidf.transform(val_texts)
+    X_train = tfidf.fit_transform(texts)
 
     umap = UMAP(n_components=umap_n_components)
     X_train = umap.fit_transform(X_train.toarray())
-    X_test = umap.transform(X_test.toarray())
 
     kmeans = KMeans(n_init=n_init)
-    kmeans.fit(X_train)
-    predicted_labels = kmeans.predict(X_test)
+    predicted_labels = kmeans.fit_predict(X_train)
 
-    best_matching, accuracy = cluster_accuracy(val_labels, predicted_labels)
-    ari = adjusted_rand_score(val_labels, predicted_labels)
-    nmi = normalized_mutual_info_score(val_labels, predicted_labels)
-    purity = purity_score(y_true=val_labels, y_pred=predicted_labels)
+    best_matching, accuracy = cluster_accuracy(labels, predicted_labels)
+    ari = adjusted_rand_score(labels, predicted_labels)
+    nmi = normalized_mutual_info_score(labels, predicted_labels)
+    purity = purity_score(y_true=labels, y_pred=predicted_labels)
 
     run_results = {}
     run_results['best_matching'] = best_matching
@@ -105,5 +84,5 @@ def run(n_init,
     run_results['purity'] = purity  # use purity to compare with microsoft paper
 
     result_df = pd.DataFrame.from_records([run_results])
-    result_df.to_csv(os.path.join(result_dir, f'ag_news_subset5-kmeans.csv'), index=False)
+    result_df.to_csv(os.path.join(result_dir, f'trec6-kmeans.csv'), index=False)
 

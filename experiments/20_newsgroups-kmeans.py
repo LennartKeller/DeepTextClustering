@@ -15,8 +15,8 @@ from umap import UMAP
 from transformers_clustering.helpers import purity_score, cluster_accuracy
 
 
-ex = Experiment('ag_news_subset5-kmeans')
-ex.observers.append(FileStorageObserver('../results/ag_news_subset5-kmeans/sacred_runs'))
+ex = Experiment('20newsgroups-kmeans')
+ex.observers.append(FileStorageObserver('../results/sacred_runs/20newsgroups-kmeans/'))
 
 mongo_enabled = os.environ.get('MONGO_SACRED_ENABLED')
 mongo_user = os.environ.get('MONGO_SACRED_USER')
@@ -40,10 +40,9 @@ def cfg():
     n_init = 20
     max_features = 20000
     umap_n_components = 100
-    dataset = "../datasets/ag_news_subset5/ag_news_subset5.csv"
-    train_idx_file = "../datasets/ag_news_subset5/splits/train"
-    val_idx_file = "../datasets/ag_news_subset5/splits/validation"
-    result_dir = f"../results/ag_news_subset5-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
+    dataset = "../datasets/20newsgroups/20newsgroups_train.csv"
+    val_dataset = "../datasets/20newsgroups/20newsgroups_val.csv"
+    result_dir = f"../results/20newsgroups-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     random_state = 42
 
 @ex.automain
@@ -51,8 +50,7 @@ def run(n_init,
         max_features,
         umap_n_components,
         dataset,
-        train_idx_file,
-        val_idx_file,
+        val_dataset,
         result_dir,
         random_state
         ):
@@ -60,25 +58,15 @@ def run(n_init,
     np.random.seed(random_state)
 
     # load data
-    df = pd.read_csv(dataset)
+    train_df = pd.read_csv(dataset)
 
-    with open(train_idx_file, 'r') as f:
-        train_idx = np.array(list(map(int, f.readlines())))
+    train_texts = train_df['texts'].to_numpy()
+    train_labels = train_df['labels'].to_numpy()
 
-    with open(val_idx_file, 'r') as f:
-        val_idx = np.array(list(map(int, f.readlines())))
+    val_df = pd.read_csv(val_dataset)
 
-    all_idx = np.concatenate((train_idx, val_idx))
-
-    df_train = df.iloc[all_idx].copy()
-
-    train_texts = df_train['texts'].to_numpy()
-    train_labels = df_train['labels'].to_numpy()
-
-    df_val = df.iloc[val_idx].copy()
-
-    val_texts = df_val['texts'].to_numpy()
-    val_labels = df_val['labels'].to_numpy()
+    val_texts = val_df['texts'].to_numpy()
+    val_labels = val_df['labels'].to_numpy()
 
     tfidf = TfidfVectorizer(max_features=max_features)
     X_train = tfidf.fit_transform(train_texts)
@@ -105,5 +93,5 @@ def run(n_init,
     run_results['purity'] = purity  # use purity to compare with microsoft paper
 
     result_df = pd.DataFrame.from_records([run_results])
-    result_df.to_csv(os.path.join(result_dir, f'ag_news_subset5-kmeans.csv'), index=False)
+    result_df.to_csv(os.path.join(result_dir, f'20newsgroups-kmeans.csv'), index=False)
 
