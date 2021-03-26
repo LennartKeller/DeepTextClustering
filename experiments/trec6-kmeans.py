@@ -68,7 +68,7 @@ def run(n_init,
     umap = UMAP(n_components=umap_n_components)
     X_train = umap.fit_transform(X_train.toarray())
 
-    kmeans = KMeans(n_init=n_init)
+    kmeans = KMeans(n_init=n_init, n_cluster=len(np.unique(train_labels)))
     predicted_labels = kmeans.fit_predict(X_train)
 
     best_matching, accuracy = cluster_accuracy(labels, predicted_labels)
