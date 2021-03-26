@@ -14,7 +14,7 @@ from transformers import AutoModelForMaskedLM, AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from transformers_clustering.helpers import TextDataset
-from transformers_clustering.helpers import cluster_accuracy, purity_score
+from transformers_clustering.helpers import cluster_accuracy, purity_score, strided_spans
 from transformers_clustering.model import init_model, train, concat_cls_n_hidden_states, evaluate
 
 ex = Experiment('20newsgroups-distilbert')
