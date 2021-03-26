@@ -1,21 +1,23 @@
 import os
 import pickle
 from time import gmtime, strftime
-from functools import partial
+
 
 import numpy as np
 import pandas as pd
 import torch
 from sacred import Experiment
 from sacred.observers import FileStorageObserver, MongoObserver
-from torch.utils.data import DataLoader
-from transformers import AutoModelForMaskedLM, AutoTokenizer
+
 
 from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from umap import UMAP
 from transformers_clustering.helpers import purity_score, cluster_accuracy
 
 
-ex = Experiment('ag_news_subset5-distilbert')
+ex = Experiment('ag_news_subset5-kmeans')
 ex.observers.append(FileStorageObserver('../results/ag_news_subset5-distilbert/sacred_runs'))
 
 mongo_enabled = os.environ.get('MONGO_SACRED_ENABLED')
@@ -37,29 +39,21 @@ if mongo_enabled == 'true':
 
 @ex.config
 def cfg():
-    n_inits = 20
+    n_init = 20
     max_features = 20000
-    umap_n_components = 300
+    umap_n_components = 100
     result_dir = f"../results/ag_news_subset5-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     device = 'cuda:0'
     random_state = 42
 
 @ex.automain
-def run(n_epochs,
-        lr,
-        train_batch_size,
-        val_batch_size,
-        base_model,
-        clustering_loss_weight,
-        embedding_extractor,
-        annealing_alphas,
+def run(n_init,
+        max_features,
+        umap_n_components,
         dataset,
         train_idx_file,
         val_idx_file,
         result_dir,
-        early_stopping,
-        early_stopping_tol,
-        device,
         random_state
         ):
     # Set random states
@@ -83,91 +77,35 @@ def run(n_epochs,
     train_texts = df_train['texts'].to_numpy()
     train_labels = df_train['labels'].to_numpy()
 
-    train_data = TextDataset(train_texts, train_labels)
-    train_data_loader = DataLoader(dataset=train_data, batch_size=train_batch_size, shuffle=False)
-
-
     df_val = df.iloc[val_idx].copy()
 
     val_texts = df_val['texts'].to_numpy()
     val_labels = df_val['labels'].to_numpy()
 
-    val_data = TextDataset(val_texts, val_labels)
-    val_data_loader = DataLoader(dataset=val_data, batch_size=val_batch_size, shuffle=False)
+    tfidf = TfidfVectorizer(max_features=max_features)
+    X_train = tfidf.fit_transform(train_texts)
+    X_test = tfidf.transform(val_texts)
 
+    umap = UMAP(n_components=umap_n_components)
+    X_train = umap.fit_transform(X_train.toarray())
+    X_test = umap.fit_transform(X_test.toarray())
 
-    # init lm model & tokenizer
-    lm_model = AutoModelForMaskedLM.from_pretrained(base_model, return_dict=True, output_hidden_states=True)
-    tokenizer = AutoTokenizer.from_pretrained(base_model, return_dict=True, output_hidden_states=True)
+    kmeans = KMeans(n_init=n_init)
+    kmeans.fit(X_train)
+    predicted_labels = kmeans.predict(X_test)
 
-    lm_model.to(device)
+    best_matching, accuracy = cluster_accuracy(val_labels, predicted_labels)
+    ari = adjusted_rand_score(val_labels, predicted_labels)
+    nmi = normalized_mutual_info_score(val_labels, predicted_labels)
+    purity = purity_score(y_true=val_labels, y_pred=predicted_labels)
 
-    # init clustering model
-    model, initial_centroids, initial_embeddings = init_model(
-        lm_model=lm_model,
-        tokenizer=tokenizer,
-        data_loader=train_data_loader,
-        embedding_extractor=embedding_extractor,
-        n_clusters=np.unique(train_labels).shape[0],
-        device=device
-    )
-
-    # init optimizer & scheduler
-    opt = torch.optim.RMSprop(
-        params=model.parameters(),
-        lr=lr,  # 2e-5, 5e-7,
-        eps=1e-8
-    )
-
-    total_steps = len(train_data_loader) * n_epochs
-
-    scheduler = get_linear_schedule_with_warmup(
-        optimizer=opt,
-        num_warmup_steps=int(len(train_data_loader) * 0.5),
-        num_training_steps=total_steps
-    )
-
-    # train the model
-    hist = train(
-        n_epochs=n_epochs,
-        model=model,
-        optimizer=opt,
-        scheduler=scheduler,
-        annealing_alphas=annealing_alphas,
-        train_data_loader=train_data_loader,
-        clustering_loss_weight=clustering_loss_weight,
-        early_stopping=early_stopping,
-        early_stopping_tol=early_stopping_tol,
-        verbose=True
-    )
-
-    # do eval
     run_results = {}
-
-    predicted_labels, true_labels = evaluate(
-        model=model,
-        eval_data_loader=val_data_loader,
-        verbose=True
-    )
-
-    best_matching, accuracy = cluster_accuracy(true_labels, predicted_labels)
-    ari = adjusted_rand_score(true_labels, predicted_labels)
-    nmi = normalized_mutual_info_score(true_labels, predicted_labels)
-    purity = purity_score(y_true=true_labels, y_pred=predicted_labels)
-
     run_results['best_matching'] = best_matching
     run_results['accuracy'] = accuracy
     run_results['ari'] = ari
     run_results['nmi'] = nmi
     run_results['purity'] = purity  # use purity to compare with microsoft paper
 
-
-    # save results & model
-    os.makedirs(result_dir)
-    with open(os.path.join(result_dir, 'train_hist.h'), 'wb') as f:
-        pickle.dump(hist, file=f)
-
     result_df = pd.DataFrame.from_records([run_results])
-    result_df.to_csv(os.path.join(result_dir, f'ag_news_subset5-distilbert.csv'), index=False)
+    result_df.to_csv(os.path.join(result_dir, f'ag_news_subset5-kmeans.csv'), index=False)
 
-    torch.save(model, os.path.join(result_dir, 'model.bin'))
