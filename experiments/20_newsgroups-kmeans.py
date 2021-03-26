@@ -68,7 +68,7 @@ def run(n_init,
     val_texts = val_df['texts'].to_numpy()
     val_labels = val_df['labels'].to_numpy()
 
-    tfidf = TfidfVectorizer(max_features=max_features)
+    tfidf = TfidfVectorizer(max_features=max_features, stop_words='english')
     X_train = tfidf.fit_transform(train_texts)
     X_test = tfidf.transform(val_texts)
 

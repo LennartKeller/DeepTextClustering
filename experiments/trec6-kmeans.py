@@ -62,7 +62,7 @@ def run(n_init,
     texts = train_df['texts'].to_numpy()
     labels = train_df['labels'].to_numpy()
 
-    tfidf = TfidfVectorizer(max_features=max_features)
+    tfidf = TfidfVectorizer(max_features=max_features, stop_words='english')
     X_train = tfidf.fit_transform(texts)
 
     umap = UMAP(n_components=umap_n_components)
