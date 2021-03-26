@@ -136,3 +136,20 @@ def callback_factory(**callback_kwargs):
         return wrapper
 
     return callback_decorator
+
+
+def strided_spans(text, window=128, stride=96, tokenizer=lambda text: text.split()):
+    tokens = tokenizer(text)
+    spans = []
+    start = 0
+    for i in range(len(tokens) // stride):
+        spans.append(tokens[start: start + window])
+        if (start + window) >= len(tokens):
+            break
+        start += stride
+    else:
+        if start < len(tokens):
+            spans.append(tokens[start:])
+
+    spans = [" ".join(entry) for entry in spans]
+    return spans
