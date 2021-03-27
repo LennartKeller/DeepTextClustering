@@ -10,6 +10,7 @@ from sacred.observers import FileStorageObserver, MongoObserver
 
 from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import LabelEncoder
 from sklearn.cluster import KMeans
 from umap import UMAP
 from transformers_clustering.helpers import purity_score, cluster_accuracy
@@ -61,6 +62,9 @@ def run(n_init,
 
     texts = train_df['texts'].to_numpy()
     labels = train_df['labels'].to_numpy()
+
+    le = LabelEncoder()
+    labels = le.fit_transform(labels)
 
     tfidf = TfidfVectorizer(max_features=max_features, stop_words='english')
     X_train = tfidf.fit_transform(texts)
