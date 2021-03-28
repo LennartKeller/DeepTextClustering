@@ -15,10 +15,10 @@ from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
 
 from transformers_clustering.helpers import TextDataset, purity_score, cluster_accuracy
-from transformers_clustering.model import concat_cls_n_hidden_states
+from transformers_clustering.model import concat_mean_n_hidden_states
 
-ex = Experiment('ag_news_subset5-embeddings-kmeans')
-ex.observers.append(FileStorageObserver('../results/ag_news_subset5-embeddings-kmeans/sacred_runs'))
+ex = Experiment('ag_news_subset5-sbert-embeddings-kmeans')
+ex.observers.append(FileStorageObserver('../results/ag_news_subset5-sbert-embeddings-kmeans/sacred_runs'))
 
 mongo_enabled = os.environ.get('MONGO_SACRED_ENABLED')
 mongo_user = os.environ.get('MONGO_SACRED_USER')
@@ -41,18 +41,17 @@ if mongo_enabled == 'true':
 def cfg():
     n_init = 20
     models = [
-        'distilbert-base-uncased',
-        'bert-base-uncased',
-        'bert-large-uncased',
-        'roberta-base',
+        'stsb-distilbert-base',
+        'stsb-bert-base',
+        'stsb-bert-large'
     ]
-    n_layers = 5
-    embedding_extractor = partial(concat_cls_n_hidden_states, n=n_layers)
+    n_layers = 1
+    embedding_extractor = partial(concat_mean_n_hidden_states, n=n_layers)
     batch_size = 16
     dataset = "../datasets/ag_news_subset5/ag_news_subset5.csv"
     train_idx_file = "../datasets/ag_news_subset5/splits/train"
     val_idx_file = "../datasets/ag_news_subset5/splits/validation"
-    result_dir = f"../results/ag_news_subset5-embeddings-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
+    result_dir = f"../results/ag_news_subset5-sbert-embeddings-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     random_state = 42
     device = 'cuda:0'
 
@@ -162,5 +161,5 @@ def run(n_init,
 
 
     result_df = pd.DataFrame.from_records(results)
-    result_df.to_csv(os.path.join(result_dir, f'ag_news_subset5-embeddings-kmeans.csv'), index=False)
+    result_df.to_csv(os.path.join(result_dir, f'ag_news_subset5-sbert-embeddings-kmeans.csv'), index=False)
 
