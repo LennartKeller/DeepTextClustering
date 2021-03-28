@@ -117,6 +117,7 @@ def run(n_init,
             train_labels.extend(batch_labels.numpy().astype('int'))
 
         X_train = np.vstack(train_embeddings)
+        train_labels = np.array(train_labels)
 
         test_embeddings = []
         val_labels = []
@@ -130,6 +131,7 @@ def run(n_init,
             val_labels.extend(batch_labels.numpy().astype('int'))
 
         X_test = np.vstack(test_embeddings)
+        val_labels = np.array(val_labels)
 
         kmeans = KMeans(n_init=n_init, n_clusters=len(np.unique(train_labels)))
         kmeans.fit(X_train)
