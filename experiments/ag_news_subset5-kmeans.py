@@ -45,6 +45,7 @@ def cfg():
     val_idx_file = "../datasets/ag_news_subset5/splits/validation"
     result_dir = f"../results/ag_news_subset5-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
     random_state = 42
+    do_umap = True
 
 @ex.automain
 def run(n_init,
@@ -54,7 +55,8 @@ def run(n_init,
         train_idx_file,
         val_idx_file,
         result_dir,
-        random_state
+        random_state,
+        do_umap = True
         ):
     # Set random states
     np.random.seed(random_state)
@@ -83,10 +85,10 @@ def run(n_init,
     tfidf = TfidfVectorizer(max_features=max_features, stop_words='english')
     X_train = tfidf.fit_transform(train_texts)
     X_test = tfidf.transform(val_texts)
-
-    umap = UMAP(n_components=umap_n_components)
-    X_train = umap.fit_transform(X_train.toarray())
-    X_test = umap.transform(X_test.toarray())
+    if do_umap:
+        umap = UMAP(n_components=umap_n_components)
+        X_train = umap.fit_transform(X_train.toarray())
+        X_test = umap.transform(X_test.toarray())
 
     kmeans = KMeans(n_init=n_init, n_clusters=len(np.unique(train_labels)))
     kmeans.fit(X_train)

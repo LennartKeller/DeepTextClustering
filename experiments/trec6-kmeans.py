@@ -43,8 +43,8 @@ def cfg():
     umap_n_components = 100
     dataset = "../datasets/trec6/trec6.csv"
     result_dir = f"../results/trec6-kmeans/{strftime('%Y-%m-%d_%H:%M:%S', gmtime())}"
-
     random_state = 42
+    do_umap = True
 
 @ex.automain
 def run(n_init,
@@ -52,7 +52,8 @@ def run(n_init,
         umap_n_components,
         dataset,
         result_dir,
-        random_state
+        random_state,
+        do_umap
         ):
     # Set random states
     np.random.seed(random_state)
@@ -69,8 +70,9 @@ def run(n_init,
     tfidf = TfidfVectorizer(max_features=max_features, stop_words='english')
     X_train = tfidf.fit_transform(texts)
 
-    umap = UMAP(n_components=umap_n_components)
-    X_train = umap.fit_transform(X_train.toarray())
+    if do_umap:
+        umap = UMAP(n_components=umap_n_components)
+        X_train = umap.fit_transform(X_train.toarray())
 
     kmeans = KMeans(n_init=n_init, n_clusters=len(np.unique(labels)))
     predicted_labels = kmeans.fit_predict(X_train)
