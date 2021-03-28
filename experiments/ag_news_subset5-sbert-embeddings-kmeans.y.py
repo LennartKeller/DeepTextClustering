@@ -41,9 +41,9 @@ if mongo_enabled == 'true':
 def cfg():
     n_init = 20
     models = [
-        'stsb-distilbert-base',
-        'stsb-bert-base',
-        'stsb-bert-large'
+        'sentence-transformers/stsb-distilbert-base',
+        'sentence-transformers/stsb-bert-base',
+        'sentence-transformers/stsb-bert-large'
     ]
     n_layers = 1
     embedding_extractor = partial(concat_mean_n_hidden_states, n=n_layers)
