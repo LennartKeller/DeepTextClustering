@@ -40,7 +40,7 @@ if mongo_enabled == 'true':
 @ex.config
 def cfg():
     n_init = 20
-    models = ['distilbert-base-uncased', 'bert-base-uncased']
+    models = ['distilbert-base-uncased', 'bert-base-uncased', 'bert-large-uncased', 'roberta-base']
     embedding_extractor = partial(concat_cls_n_hidden_states, n=5)
     batch_size = 16
     dataset = "../datasets/ag_news_subset5/ag_news_subset5.csv"
