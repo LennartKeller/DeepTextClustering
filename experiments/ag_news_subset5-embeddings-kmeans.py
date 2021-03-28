@@ -151,7 +151,7 @@ def run(n_init,
         run_results['purity'] = purity  # use purity to compare with microsoft paper
         results.append(run_results)
 
-        with open(os.path.join(result_dir, f'{model}_embeddings.h', 'wb')) as f:
+        with open(os.path.join(result_dir, f'{model}_embeddings.h'), 'wb') as f:
             pickle.dump([X_train, train_labels, X_test, val_labels], f)
 
 
