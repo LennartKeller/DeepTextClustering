@@ -48,7 +48,8 @@ def cfg():
         'sentence-transformers/bert-base-nli-cls-token',
         'sentence-transformers/distilbert-base-nli-cls-token'
     ]
-    embedding_extractor = partial(concat_cls_n_hidden_states, n=5)
+    n_layers = 5
+    embedding_extractor = partial(concat_cls_n_hidden_states, n=n_layers)
     batch_size = 16
     dataset = "../datasets/ag_news_subset5/ag_news_subset5.csv"
     train_idx_file = "../datasets/ag_news_subset5/splits/train"
