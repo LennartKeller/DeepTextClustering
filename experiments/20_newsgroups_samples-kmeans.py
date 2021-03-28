@@ -68,12 +68,14 @@ def run(n_init,
     print(train_df.shape)
     train_texts = train_df['texts'].to_numpy()
     train_labels = train_df['labels'].to_numpy()
+    print(train_texts.shape)
 
     val_df = pd.read_csv(val_dataset)
     val_df = val_df.query("labels in @idx")
     print(val_df.shape)
     val_texts = val_df['texts'].to_numpy()
     val_labels = val_df['labels'].to_numpy()
+    print(val_texts.shape)
 
 
     tfidf = TfidfVectorizer(max_features=max_features, stop_words='english')
@@ -84,7 +86,7 @@ def run(n_init,
     X_train = umap.fit_transform(X_train.toarray())
     X_test = umap.transform(X_test.toarray())
 
-    rint(len(np.unique(train_labels)))
+    print(len(np.unique(train_labels)))
     kmeans = KMeans(n_init=n_init, n_clusters=len(np.unique(train_labels)))
     kmeans.fit(X_train)
     predicted_labels = kmeans.predict(X_test)
