@@ -126,7 +126,7 @@ def run(n_init,
             with torch.no_grad():
                 outputs = lm_model(**inputs)
             extracted_embeddings = embedding_extractor(outputs).cpu().detach().numpy()
-            train_embeddings.append(extracted_embeddings)
+            test_embeddings.append(extracted_embeddings)
             val_labels.extend(batch_labels.numpy().astype('int'))
 
         X_test = np.vstack(test_embeddings)
