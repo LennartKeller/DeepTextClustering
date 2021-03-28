@@ -82,9 +82,9 @@ def run(n_init,
     X_train = tfidf.fit_transform(train_texts)
     X_test = tfidf.transform(val_texts)
 
-    umap = UMAP(n_components=umap_n_components)
-    X_train = umap.fit_transform(X_train.toarray())
-    X_test = umap.transform(X_test.toarray())
+    #umap = UMAP(n_components=umap_n_components)
+    #X_train = umap.fit_transform(X_train.toarray())
+    #X_test = umap.transform(X_test.toarray())
 
     print(len(np.unique(train_labels)))
     kmeans = KMeans(n_init=n_init, n_clusters=len(np.unique(train_labels)))
