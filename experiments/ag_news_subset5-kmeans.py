@@ -9,7 +9,6 @@ from sacred.observers import FileStorageObserver, MongoObserver
 
 
 from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
-from sklearn.pipeline import  Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from umap import UMAP
