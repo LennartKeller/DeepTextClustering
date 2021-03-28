@@ -1,20 +1,21 @@
 import os
+import pickle
+from functools import partial
 from time import gmtime, strftime
-
 
 import numpy as np
 import pandas as pd
+import torch
 from sacred import Experiment
 from sacred.observers import FileStorageObserver, MongoObserver
-from torch.utils.data import DataLoader
-from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
-import torch
-from transformers import AutoModel, AutoTokenizer
 from sklearn.cluster import KMeans
-from transformers_clustering.helpers import TextDataset, purity_score, cluster_accuracy
-from transformers_clustering.model import  concat_cls_n_hidden_states
-from functools import partial
+from sklearn.metrics import normalized_mutual_info_score, adjusted_rand_score
+from torch.utils.data import DataLoader
 from tqdm import tqdm
+from transformers import AutoModel, AutoTokenizer
+
+from transformers_clustering.helpers import TextDataset, purity_score, cluster_accuracy
+from transformers_clustering.model import concat_cls_n_hidden_states
 
 ex = Experiment('ag_news_subset5-embeddings-kmeans')
 ex.observers.append(FileStorageObserver('../results/ag_news_subset5-embeddings-kmeans/sacred_runs'))
@@ -66,6 +67,8 @@ def run(n_init,
     np.random.seed(random_state)
     torch.manual_seed(random_state)
     torch.cuda.manual_seed_all(random_state)
+
+    os.makedirs(result_dir, exist_ok=True)
 
     # load data
     df = pd.read_csv(dataset)
@@ -146,7 +149,10 @@ def run(n_init,
         run_results['purity'] = purity  # use purity to compare with microsoft paper
         results.append(run_results)
 
-    os.makedirs(result_dir, exist_ok=True)
+        with open(os.path.join(result_dir, f'{model}_embeddings.h', 'wb')) as f:
+            pickle.dump([X_train, train_labels, X_test, val_labels], f)
+
+
     result_df = pd.DataFrame.from_records(results)
     result_df.to_csv(os.path.join(result_dir, f'ag_news_subset5-embeddings-kmeans.csv'), index=False)
 
