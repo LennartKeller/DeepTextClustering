@@ -42,7 +42,6 @@ def cfg():
     n_init = 20
     models = [
         'sentence-transformers/stsb-distilbert-base',
-        'sentence-transformers/stsb-bert-base',
         'sentence-transformers/stsb-bert-large'
     ]
     n_layers = 1
