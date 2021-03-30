@@ -1,5 +1,8 @@
 # Deep text clustering with language models.
 
+This repo contains the code and data for my term paper
+"Fine-tuning language models on text clustering."
+
 # Project structure
 
 ### ``transformers_clustering`` 
