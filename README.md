@@ -40,7 +40,7 @@ conda create --name <env> --file requirements_conda.txt
 
 # Or (better):
 conda env create -f conda_environment.yml
-# The latter will create a conda env named clustering, containing nearly all required packages.
+# The latter will create a conda env named deep_text_clustering, containing nearly all required packages.
 ```
 
 If you are using conda, it is necessary to install these packages manually: 
@@ -49,6 +49,7 @@ If you are using conda, it is necessary to install these packages manually:
   - umap-learn
   - transformers
   - cudatoolkit
+  - sacred
 
 # Installation
 
