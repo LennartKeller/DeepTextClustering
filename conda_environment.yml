@@ -5,20 +5,15 @@ dependencies:
   - python=3.8
   - torchvision
   - pytorch
-  - torchtext
-  - cudatoolkit=10.1
   - jupyter
   - pandas
   - scipy
   - numpy
   - scikit-learn
-  - transformers
   - ipykernel
   - jupyterlab
   - openpyxl
   - nltk
-  - umap-learn
   - psutil
-  - plotly-orca
 prefix: /home/keller/.conda/envs/clustering
 

@@ -40,9 +40,15 @@ conda create --name <env> --file requirements_conda.txt
 
 # Or (better):
 conda env create -f conda_environment.yml
-# The latter will create a conda env named clustering, containing all required packages.
-# Note: Depending on your system, you might have to change version of cuda-toolkit.
+# The latter will create a conda env named clustering, containing nearly all required packages.
 ```
+
+If you are using conda, it is necessary to install these packages manually: 
+  - plotly-orca
+  - torchtext
+  - umap-learn
+  - transformers
+  - cudatoolkit
 
 # Installation
 
