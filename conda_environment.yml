@@ -1,6 +1,7 @@
-name: clustering
+name: deep_text_clusterimng
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - python=3.8
   - torchvision
