@@ -27,6 +27,7 @@ Contains some notebooks used to create plots and tables and some relicts of the 
 Install all dependencies, either using pip or conda.
 
 ```
+# Very likely it won't work:
 pip install -r requirements.txt
 ```  
 
