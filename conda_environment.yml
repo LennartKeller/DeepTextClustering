@@ -15,5 +15,5 @@ dependencies:
   - openpyxl
   - nltk
   - psutil
-prefix: /home/keller/.conda/envs/clustering
+
 
