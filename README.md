@@ -91,7 +91,7 @@ No matter if MongoDB is enabled each experiment will be tracked locally and the 
 to ``results/sacred_runs``
 Parameters of each run can be changed using the sacred syntax:
 
-````
+```
 python <experiment>.py with lr=1.0 n_epochs=1
 ```
 
