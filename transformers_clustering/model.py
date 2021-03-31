@@ -135,7 +135,7 @@ class ClusterLM(nn.Module):
         # centroids: shape (n_centroids, n_dimensions)
 
         dot_matrix = torch.matmul(input_embeddings, self.centroids.T)
-        nearest_centroids = dot_matrix.argmin(dim=1).cpu().clone().detach()
+        nearest_centroids = dot_matrix.argmax(dim=1).cpu().clone().detach()
         # shape: n_samples, n_centroids
         softmin = nn.Softmax(dim=1)
         weighted_distances = torch.mul(
