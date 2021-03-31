@@ -138,7 +138,7 @@ class ClusterLM(nn.Module):
         nearest_centroids = distance_matrix.argmin(dim=1)
         # shape: n_samples, n_centroids
         softmin = nn.Softmin(dim=1)
-        weighted_distances = softmin(alpha * distance_matrix) * wei
+        weighted_distances = softmin(alpha * distance_matrix) * distance_matrix
 
         # 4. Sum over weighted_distances to obtain loss
         clustering_loss = weighted_distances.sum(dim=1).mean()
