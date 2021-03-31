@@ -143,7 +143,7 @@ class ClusterLM(nn.Module):
             dot_matrix)
 
         # 4. Sum over weighted_distances to obtain loss
-        clustering_loss = weighted_distances.sum(dim=1).mean()
+        clustering_loss = weighted_distances.sum(dim=1).mean().log()
 
         # Create clustering output dictionary
         cluster_outputs = ClusterOutput(
