@@ -139,7 +139,7 @@ class ClusterLM(nn.Module):
         # shape: n_samples, n_centroids
         softmin = nn.Softmin(dim=1)
         weighted_distances = torch.mul(
-            softmin(alpha * distance_matrix) / input_embeddings.shape[1],
+            softmin(alpha * distance_matrix),
             torch.abs(distance_matrix))
 
         # 4. Sum over weighted_distances to obtain loss
