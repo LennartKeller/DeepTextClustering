@@ -137,10 +137,13 @@ class ClusterLM(nn.Module):
         dot_matrix = torch.matmul(input_embeddings, self.centroids.T)
         nearest_centroids = dot_matrix.argmax(dim=1).cpu().clone().detach()
         # shape: n_samples, n_centroids
-        softmin = nn.Softmax(dim=1)
-        weighted_distances = torch.mul(
-            softmin(alpha * dot_matrix),
-            dot_matrix)
+        softmin = nn.Softmin(dim=1)
+
+        a = torch.matmul(input_embeddings, self.centroids.T)
+        b = torch.matmul(torch.norm(input_embeddings, dim=2), torch.norm(self.centroids, dim=1).T)
+        cosine_dist = 1 - (a / b)
+
+        weighted_distances = torch.mul(cosine_dist, softmin(cosine_dist))
 
         # 4. Sum over weighted_distances to obtain loss
         clustering_loss = weighted_distances.sum(dim=1).mean().log()
